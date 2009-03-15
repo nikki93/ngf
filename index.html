@@ -1,0 +1,103 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+	<title>nikki93/ngf @ GitHub</title>
+	
+	<style type="text/css">
+		body {
+  		margin-top: 1.0em;
+  		background-color: #243e9b;
+		  font-family: "helvetica"; 
+  		color: #ffffff;
+    }
+    #container {
+      margin: 0 auto;
+      width: 700px;
+    }
+		h1 { font-size: 3.8em; color: #dbc164; margin-bottom: 3px; }
+		h1 .small { font-size: 0.4em; }
+		h1 a { text-decoration: none }
+		h2 { font-size: 1.5em; color: #dbc164; }
+    h3 { text-align: center; color: #dbc164; }
+    a { color: #dbc164; }
+    .description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px; font-style: italic;}
+    .download { float: right; }
+		pre { background: #000; color: #fff; padding: 15px;}
+    hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
+    .footer { text-align:center; padding-top:30px; font-style: italic; }
+	</style>
+	
+</head>
+
+<body>
+  <a href="http://github.com/nikki93/ngf"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+  
+  <div id="container">
+
+    <div class="download">
+      <a href="http://github.com/nikki93/ngf/zipball/master">
+        <img border="0" width="90" src="http://github.com/images/modules/download/zip.png"></a>
+      <a href="http://github.com/nikki93/ngf/tarball/master">
+        <img border="0" width="90" src="http://github.com/images/modules/download/tar.png"></a>
+    </div>
+      
+    <h1><a href="http://github.com/nikki93/ngf">ngf</a> 
+      <span class="small">by <a href="http://github.com/nikki93">nikki93</a></small></h1>
+
+    <div class="description">
+      nikki's Game Framework, a set of framework classes and stuff in C++ that helps develop applications (especially games) with Ogre.
+    </div>
+
+    <p>What is it?
+NGF (nikki's Game Framework) is a set of framework classes in C++ that help write software, especially games, using Ogre. It helps you manage your GameObjects (Players, Monsters etc.), and Worlds (Menu Screens, Levels etc.), and provides a format to hold GameObjects' positions, orientations and properties. It also includes an exporter for Blender to the '.ngf' format, and means to connect to OgreODE or OgreBullet to allow GameObjects to receive collision events. You can easly write exporters for other applications, or code connecting NGF to other physics engines.
+
+What does it require?
+It requires Ogre and boost. Optionally, you may also need OgreODE or OgreBullet for the respective physics features, and Blender to use the Blender to '.ngf' exporter.
+
+Is it big and complicated?
+No, it isn't. Its just 2 files: A .h and .cpp file. You also get a manual, a tutorial, and a demo application (the result of the tutorial) to get you started off using it quick. I can't handle big and complicated projects. ;-)
+
+The demo application uses premake for its build mechanism, so you can easily make project files for whichever IDE you use, or makefiles for gcc. You simply have to edit the premake.lua file to suit your system (if you're on Linux, pkg-config helps).
+
+Why would I use it?
+Sure you don't have to use it, but I've seen a lot of questions about GameObject-management frameworks on the forums and I thought it would help. I also made it because I myself need something like this. GraLL used an older version of NGF.
+</p><h2>Dependencies</h2>
+<p>Ogre, Boost
+
+Bullet/ODE/OgreODE/OgreBullet (for physics connections)
+
+Boost.Python (for python connection (still experimental) )</p>
+<h2>Install</h2>
+<p>Check out the documentation in the 'docs' folder.</p>
+<h2>License</h2>
+<p>Boost Software License</p>
+<h2>Authors</h2>
+<p>Nikhilesh S (nikki) (s.nikhilesh@gmail.com)<br/><br/>      </p>
+<h2>Contact</h2>
+<p> (s.nikhilesh@gmail.com)<br/>      </p>
+
+
+    <h2>Download</h2>
+    <p>
+      You can download this project in either
+      <a href="http://github.com/nikki93/ngf/zipball/master">zip</a> or
+      <a href="http://github.com/nikki93/ngf/tarball/master">tar</a> formats.
+    </p>
+    <p>You can also clone the project with <a href="http://git-scm.com">Git</a>
+      by running:
+      <pre>$ git clone git://github.com/nikki93/ngf</pre>
+    </p>
+      
+    <div class="footer">
+      get the source code on GitHub : <a href="http://github.com/nikki93/ngf">nikki93/ngf</a>
+    </div>
+    
+  </div>
+
+  
+</body>
+</html>
