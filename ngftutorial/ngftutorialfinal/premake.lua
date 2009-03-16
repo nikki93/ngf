@@ -16,6 +16,10 @@ package.kind = "exe"
 package.language = "c++"
 package.configs = { "Debug", "Release" } -- If you add more, configure them at the bottom.
 
+if (windows) then
+   table.insert(package.defines, "WIN32") -- To fix a problem on Windows.
+end
+
 -- Include and library search paths, system dependent (I don't assume a directory structure)
 
 package.includepaths = {
