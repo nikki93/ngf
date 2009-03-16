@@ -1,0 +1,90 @@
+ngflevel Level1
+{
+	object
+	{
+		type LevelGeometry
+		name noname
+		position 86.459045 -47.477589 14.741463
+		rotation 1.000000 0.000000 0.000000 -0.000000
+
+		properties
+		{
+			brushMeshFile Level1_b0.mesh
+		}
+	}
+	object
+	{
+		type LevelGeometry
+		name noname
+		position 1.500000 -30.963762 -0.500000
+		rotation 1.000000 0.000000 0.000000 -0.000000
+
+		properties
+		{
+			brushMeshFile Level1_b1.mesh
+		}
+	}
+	object
+	{
+		type Player
+		name noname
+		position 0.500000 0.500000 -0.500000
+		rotation 1.000000 0.000000 0.000000 -0.000000
+	}
+	object
+	{
+		type LevelGeometry
+		name noname
+		position 6.500000 -34.405964 48.741463
+		rotation 1.000000 0.000000 0.000000 -0.000000
+
+		properties
+		{
+			brushMeshFile Level1_b2.mesh
+		}
+	}
+}
+
+ngflevel TestLevel
+{
+	object
+	{
+		type LevelGeometry
+		name noname
+		position 0.000000 0.000000 -0.000000
+		rotation 1.000000 0.000000 0.000000 -0.000000
+
+		properties
+		{
+			brushMeshFile TestLevel_b0.mesh
+		}
+	}
+	object
+	{
+		type LevelGeometry
+		name noname
+		position 5.500000 1.500000 -11.500000
+		rotation 1.000000 0.000000 0.000000 -0.000000
+
+		properties
+		{
+			brushMeshFile TestLevel_b1.mesh
+		}
+	}
+	object
+	{
+		type Player
+		name noname
+		position -10.143026 8.099021 -6.905792
+		rotation 1.000000 0.000000 0.000000 -0.000000
+
+		properties
+		{
+			myScript : (dolist (obj (ngf-get-all))
+			         : 	(ngf-method obj "jump" '(1 2 3)))
+			         : 	
+			         : (format t "Hello world!")
+		}
+	}
+}
+

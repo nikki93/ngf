@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MyGUI type="Layout">
+    <Widget type="Window" skin="WindowCS" position_real="0.00938967 0.556391 0.525822 0.431078" layer="Back" name="win_console">
+        <Property key="Widget_Caption" value="Console"/>
+        <Widget type="Edit" skin="EditStretch" position_real="0.0120846 0.029316 0.978852 0.723127" align="Left Top" layer="Back" name="edt_console_out">
+            <Property key="Edit_ReadOnly" value="true"/>
+            <Property key="Edit_MultiLine" value="true"/>
+        </Widget>
+        <Widget type="Edit" skin="EditStretch" position_real="0.0120846 0.771987 0.844411 0.205212" align="Left Top" layer="Back" name="edt_console_in">
+            <Property key="Edit_MultiLine" value="true"/>
+        </Widget>
+        <Widget type="Button" skin="Button" position_real="0.86858 0.771987 0.120846 0.208469" layer="Back" name="but_console_run">
+            <Property key="Widget_Caption" value="Run"/>
+        </Widget>
+    </Widget>
+</MyGUI>

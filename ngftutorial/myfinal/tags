@@ -1,0 +1,149 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.7	//
+Globals	include/Globals.h	/^namespace Globals$/;"	n
+Globals::gom	include/Globals.h	/^    NGF::GameObjectManager *gom;$/;"	v
+Globals::keyboard	include/Globals.h	/^    OIS::Keyboard *keyboard;$/;"	v
+Globals::load	include/Globals.h	/^    NGF::Loading::Loader *load;$/;"	v
+Globals::phyWorld	include/Globals.h	/^    btDynamicsWorld *phyWorld;$/;"	v
+Globals::smgr	include/Globals.h	/^    SceneManager *smgr;$/;"	v
+Globals::window	include/Globals.h	/^    RenderWindow *window;$/;"	v
+Globals::wom	include/Globals.h	/^    NGF::WorldManager *wom;$/;"	v
+Level	include/Level.h	/^	Level(String levelName) $/;"	f	class:Level	access:public	signature:(String levelName)
+Level	include/Level.h	/^class Level : public NGF::World$/;"	c	inherits:NGF::World
+Level::Level	include/Level.h	/^	Level(String levelName) $/;"	f	class:Level	access:public	signature:(String levelName)
+Level::init	include/Level.h	/^	void init()$/;"	f	class:Level	access:public	signature:()
+Level::mJustStartedN	include/Level.h	/^	bool mJustStartedN;$/;"	m	class:Level	access:protected
+Level::mJustStartedP	include/Level.h	/^	bool mJustStartedP;$/;"	m	class:Level	access:protected
+Level::mLevel	include/Level.h	/^	String mLevel;$/;"	m	class:Level	access:protected
+Level::stop	include/Level.h	/^	void stop()$/;"	f	class:Level	access:public	signature:()
+Level::tick	include/Level.h	/^	void tick(const Ogre::FrameEvent &evt)$/;"	f	class:Level	access:public	signature:(const Ogre::FrameEvent &evt)
+Level::~Level	include/Level.h	/^	~Level() $/;"	f	class:Level	access:public	signature:()
+LevelGeometry	include/LevelGeometry.h	/^	LevelGeometry(Ogre::Vector3 pos, Ogre::Quaternion rot, NGF::ID id, NGF::PropertyList properties, String name) : NGF::PythonGameObject(pos, rot, id , properties, name)$/;"	f	class:LevelGeometry	access:public	signature:(Ogre::Vector3 pos, Ogre::Quaternion rot, NGF::ID id, NGF::PropertyList properties, String name)
+LevelGeometry	include/LevelGeometry.h	/^class LevelGeometry : public NGF::PythonGameObject$/;"	c	inherits:NGF::PythonGameObject
+LevelGeometry::LevelGeometry	include/LevelGeometry.h	/^	LevelGeometry(Ogre::Vector3 pos, Ogre::Quaternion rot, NGF::ID id, NGF::PropertyList properties, String name) : NGF::PythonGameObject(pos, rot, id , properties, name)$/;"	f	class:LevelGeometry	access:public	signature:(Ogre::Vector3 pos, Ogre::Quaternion rot, NGF::ID id, NGF::PropertyList properties, String name)
+LevelGeometry::mBody	include/LevelGeometry.h	/^	btRigidBody *mBody;$/;"	m	class:LevelGeometry	access:protected
+LevelGeometry::mEntity	include/LevelGeometry.h	/^	Entity *mEntity;$/;"	m	class:LevelGeometry	access:protected
+LevelGeometry::mNode	include/LevelGeometry.h	/^	SceneNode *mNode;$/;"	m	class:LevelGeometry	access:protected
+LevelGeometry::mShape	include/LevelGeometry.h	/^	btCollisionShape *mShape;$/;"	m	class:LevelGeometry	access:protected
+LevelGeometry::pausedTick	include/LevelGeometry.h	/^	void pausedTick(const Ogre::FrameEvent &evt)$/;"	f	class:LevelGeometry	access:public	signature:(const Ogre::FrameEvent &evt)
+LevelGeometry::pythonGet	include/LevelGeometry.h	/^	boost::python::object pythonGet(Ogre::String name)$/;"	f	class:LevelGeometry	access:public	signature:(Ogre::String name)
+LevelGeometry::pythonMethod	include/LevelGeometry.h	/^	boost::python::object pythonMethod(Ogre::String name, boost::python::object args)$/;"	f	class:LevelGeometry	access:public	signature:(Ogre::String name, boost::python::object args)
+LevelGeometry::pythonSet	include/LevelGeometry.h	/^	void pythonSet(Ogre::String name, boost::python::object value)$/;"	f	class:LevelGeometry	access:public	signature:(Ogre::String name, boost::python::object value)
+LevelGeometry::receiveMessage	include/LevelGeometry.h	/^	void receiveMessage(NGF::Message msg)$/;"	f	class:LevelGeometry	access:public	signature:(NGF::Message msg)
+LevelGeometry::unpausedTick	include/LevelGeometry.h	/^	void unpausedTick(const Ogre::FrameEvent &evt)$/;"	f	class:LevelGeometry	access:public	signature:(const Ogre::FrameEvent &evt)
+LevelGeometry::~LevelGeometry	include/LevelGeometry.h	/^	~LevelGeometry()$/;"	f	class:LevelGeometry	access:public	signature:()
+NGFExampleApplication	include/NGFExampleApplication.h	/^	NGFExampleApplication()$/;"	f	class:NGFExampleApplication	access:public	signature:()
+NGFExampleApplication	include/NGFExampleApplication.h	/^class NGFExampleApplication : public ExampleApplication$/;"	c	inherits:ExampleApplication
+NGFExampleApplication::NGFExampleApplication	include/NGFExampleApplication.h	/^	NGFExampleApplication()$/;"	f	class:NGFExampleApplication	access:public	signature:()
+NGFExampleApplication::consoleRun	include/NGFExampleApplication.h	/^	void consoleRun(MyGUI::WidgetPtr)$/;"	f	class:NGFExampleApplication	access:public	signature:(MyGUI::WidgetPtr)
+NGFExampleApplication::createFrameListener	include/NGFExampleApplication.h	/^	void createFrameListener(void)$/;"	f	class:NGFExampleApplication	access:protected	signature:(void)
+NGFExampleApplication::createScene	include/NGFExampleApplication.h	/^	void createScene(void)$/;"	f	class:NGFExampleApplication	access:protected	signature:(void)
+NGFExampleApplication::mBroadphase	include/NGFExampleApplication.h	/^	btAxisSweep3 *mBroadphase;$/;"	m	class:NGFExampleApplication	access:protected
+NGFExampleApplication::mCollisionConfig	include/NGFExampleApplication.h	/^	btDefaultCollisionConfiguration *mCollisionConfig;$/;"	m	class:NGFExampleApplication	access:protected
+NGFExampleApplication::mDispatcher	include/NGFExampleApplication.h	/^	btCollisionDispatcher *mDispatcher;$/;"	m	class:NGFExampleApplication	access:protected
+NGFExampleApplication::mFrameListener	include/NGFExampleApplication.h	/^	NGFExampleFrameListener *mFrameListener;$/;"	m	class:NGFExampleApplication	access:protected
+NGFExampleApplication::mGUI	include/NGFExampleApplication.h	/^	MyGUI::Gui *mGUI;$/;"	m	class:NGFExampleApplication	access:protected
+NGFExampleApplication::mSolver	include/NGFExampleApplication.h	/^	btSequentialImpulseConstraintSolver *mSolver;$/;"	m	class:NGFExampleApplication	access:protected
+NGFExampleApplication::setupResources	include/NGFExampleApplication.h	/^	void setupResources(void)$/;"	f	class:NGFExampleApplication	access:protected	signature:(void)
+NGFExampleApplication::~NGFExampleApplication	include/NGFExampleApplication.h	/^	~NGFExampleApplication()$/;"	f	class:NGFExampleApplication	access:public	signature:()
+NGFExampleFrameListener	include/NGFExampleFrameListener.h	/^	NGFExampleFrameListener(RenderWindow* win, Camera* cam) $/;"	f	class:NGFExampleFrameListener	access:public	signature:(RenderWindow* win, Camera* cam)
+NGFExampleFrameListener	include/NGFExampleFrameListener.h	/^class NGFExampleFrameListener : public ExampleFrameListener, public OIS::MouseListener, public OIS::KeyListener$/;"	c	inherits:ExampleFrameListener,OIS::MouseListener,OIS::KeyListener
+NGFExampleFrameListener::NGFExampleFrameListener	include/NGFExampleFrameListener.h	/^	NGFExampleFrameListener(RenderWindow* win, Camera* cam) $/;"	f	class:NGFExampleFrameListener	access:public	signature:(RenderWindow* win, Camera* cam)
+NGFExampleFrameListener::frameStarted	include/NGFExampleFrameListener.h	/^	bool frameStarted(const FrameEvent& evt)$/;"	f	class:NGFExampleFrameListener	access:public	signature:(const FrameEvent& evt)
+NGFExampleFrameListener::keyPressed	include/NGFExampleFrameListener.h	/^	bool keyPressed(const OIS::KeyEvent &arg)$/;"	f	class:NGFExampleFrameListener	access:public	signature:(const OIS::KeyEvent &arg)
+NGFExampleFrameListener::keyReleased	include/NGFExampleFrameListener.h	/^	bool keyReleased( const OIS::KeyEvent &arg )$/;"	f	class:NGFExampleFrameListener	access:public	signature:( const OIS::KeyEvent &arg )
+NGFExampleFrameListener::mGUI	include/NGFExampleFrameListener.h	/^	MyGUI::Gui *mGUI;$/;"	m	class:NGFExampleFrameListener	access:protected
+NGFExampleFrameListener::mouseMoved	include/NGFExampleFrameListener.h	/^	bool mouseMoved(const OIS::MouseEvent &arg)$/;"	f	class:NGFExampleFrameListener	access:public	signature:(const OIS::MouseEvent &arg)
+NGFExampleFrameListener::mousePressed	include/NGFExampleFrameListener.h	/^	bool mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)$/;"	f	class:NGFExampleFrameListener	access:public	signature:(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
+NGFExampleFrameListener::mouseReleased	include/NGFExampleFrameListener.h	/^	bool mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)$/;"	f	class:NGFExampleFrameListener	access:public	signature:(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
+NGFExampleFrameListener::~NGFExampleFrameListener	include/NGFExampleFrameListener.h	/^	~NGFExampleFrameListener()$/;"	f	class:NGFExampleFrameListener	access:public	signature:()
+NGF_PY_BEGIN_IMPL	include/Player.h	/^NGF_PY_BEGIN_IMPL(Player)$/;"	f	signature:(Player)
+Player	include/Player.h	/^	Player(Ogre::Vector3 pos, Ogre::Quaternion rot, NGF::ID id, NGF::PropertyList properties, String name) : NGF::PythonGameObject(pos, rot, id , properties, name)$/;"	f	class:Player	access:public	signature:(Ogre::Vector3 pos, Ogre::Quaternion rot, NGF::ID id, NGF::PropertyList properties, String name)
+Player	include/Player.h	/^class Player : public NGF::PythonGameObject$/;"	c	inherits:NGF::PythonGameObject
+Player::Player	include/Player.h	/^	Player(Ogre::Vector3 pos, Ogre::Quaternion rot, NGF::ID id, NGF::PropertyList properties, String name) : NGF::PythonGameObject(pos, rot, id , properties, name)$/;"	f	class:Player	access:public	signature:(Ogre::Vector3 pos, Ogre::Quaternion rot, NGF::ID id, NGF::PropertyList properties, String name)
+Player::collide	include/Player.h	/^	void collide(GameObject *other, btCollisionObject *otherPhysicsObject, btManifoldPoint &contact) $/;"	f	class:Player	access:public	signature:(GameObject *other, btCollisionObject *otherPhysicsObject, btManifoldPoint &contact)
+Player::mBody	include/Player.h	/^	btRigidBody *mBody;$/;"	m	class:Player	access:protected
+Player::mEntity	include/Player.h	/^	Entity *mEntity;$/;"	m	class:Player	access:protected
+Player::mHealth	include/Player.h	/^	float mHealth;$/;"	m	class:Player	access:protected
+Player::mNode	include/Player.h	/^	SceneNode *mNode;$/;"	m	class:Player	access:protected
+Player::mPythonMethods	include/Player.h	/^	static std::map<Ogre::String, int> mPythonMethods;$/;"	m	class:Player	access:protected
+Player::mPythonMethods	include/Player.h	/^std::map<Ogre::String, int> Player::mPythonMethods = std::map<Ogre::String, int>();$/;"	m	class:Player
+Player::mShape	include/Player.h	/^	btCollisionShape *mShape;$/;"	m	class:Player	access:protected
+Player::mTime	include/Player.h	/^	Real mTime;$/;"	m	class:Player	access:protected
+Player::member_health	include/Player.h	/^		member_health,$/;"	e	enum:Player::__anon1
+Player::member_set_health	include/Player.h	/^		member_set_health$/;"	e	enum:Player::__anon1
+Player::method_applyImpulse	include/Player.h	/^		method_applyImpulse,$/;"	e	enum:Player::__anon1
+Player::method_setPosition	include/Player.h	/^		method_setPosition,$/;"	e	enum:Player::__anon1
+Player::pausedTick	include/Player.h	/^	void pausedTick(const Ogre::FrameEvent &evt)$/;"	f	class:Player	access:public	signature:(const Ogre::FrameEvent &evt)
+Player::receiveMessage	include/Player.h	/^	void receiveMessage(NGF::Message msg)$/;"	f	class:Player	access:public	signature:(NGF::Message msg)
+Player::unpausedTick	include/Player.h	/^	void unpausedTick(const Ogre::FrameEvent &evt)$/;"	f	class:Player	access:public	signature:(const Ogre::FrameEvent &evt)
+Player::~Player	include/Player.h	/^	~Player()$/;"	f	class:Player	access:public	signature:()
+QF_LEVELGEOMETRY	include/Globals.h	/^    QF_LEVELGEOMETRY = 1<<7$/;"	e	enum:QueryFlags
+QueryFlags	include/Globals.h	/^enum QueryFlags$/;"	g
+collide	include/Player.h	/^	void collide(GameObject *other, btCollisionObject *otherPhysicsObject, btManifoldPoint &contact) $/;"	f	class:Player	access:public	signature:(GameObject *other, btCollisionObject *otherPhysicsObject, btManifoldPoint &contact)
+consoleRun	include/NGFExampleApplication.h	/^	void consoleRun(MyGUI::WidgetPtr)$/;"	f	class:NGFExampleApplication	access:public	signature:(MyGUI::WidgetPtr)
+createFrameListener	include/NGFExampleApplication.h	/^	void createFrameListener(void)$/;"	f	class:NGFExampleApplication	access:protected	signature:(void)
+createScene	include/NGFExampleApplication.h	/^	void createScene(void)$/;"	f	class:NGFExampleApplication	access:protected	signature:(void)
+frameStarted	include/NGFExampleFrameListener.h	/^	bool frameStarted(const FrameEvent& evt)$/;"	f	class:NGFExampleFrameListener	access:public	signature:(const FrameEvent& evt)
+gom	include/Globals.h	/^    NGF::GameObjectManager *gom;$/;"	v
+init	include/Level.h	/^	void init()$/;"	f	class:Level	access:public	signature:()
+keyPressed	include/NGFExampleFrameListener.h	/^	bool keyPressed(const OIS::KeyEvent &arg)$/;"	f	class:NGFExampleFrameListener	access:public	signature:(const OIS::KeyEvent &arg)
+keyReleased	include/NGFExampleFrameListener.h	/^	bool keyReleased( const OIS::KeyEvent &arg )$/;"	f	class:NGFExampleFrameListener	access:public	signature:( const OIS::KeyEvent &arg )
+keyboard	include/Globals.h	/^    OIS::Keyboard *keyboard;$/;"	v
+load	include/Globals.h	/^    NGF::Loading::Loader *load;$/;"	v
+loaderHelperFunction	include/Helper.h	/^void loaderHelperFunction(String type, String name, Vector3 pos, Quaternion rot, NGF::PropertyList props)$/;"	f	signature:(String type, String name, Vector3 pos, Quaternion rot, NGF::PropertyList props)
+mBody	include/LevelGeometry.h	/^	btRigidBody *mBody;$/;"	m	class:LevelGeometry	access:protected
+mBody	include/Player.h	/^	btRigidBody *mBody;$/;"	m	class:Player	access:protected
+mBroadphase	include/NGFExampleApplication.h	/^	btAxisSweep3 *mBroadphase;$/;"	m	class:NGFExampleApplication	access:protected
+mCollisionConfig	include/NGFExampleApplication.h	/^	btDefaultCollisionConfiguration *mCollisionConfig;$/;"	m	class:NGFExampleApplication	access:protected
+mDispatcher	include/NGFExampleApplication.h	/^	btCollisionDispatcher *mDispatcher;$/;"	m	class:NGFExampleApplication	access:protected
+mEntity	include/LevelGeometry.h	/^	Entity *mEntity;$/;"	m	class:LevelGeometry	access:protected
+mEntity	include/Player.h	/^	Entity *mEntity;$/;"	m	class:Player	access:protected
+mFrameListener	include/NGFExampleApplication.h	/^	NGFExampleFrameListener *mFrameListener;$/;"	m	class:NGFExampleApplication	access:protected
+mGUI	include/NGFExampleApplication.h	/^	MyGUI::Gui *mGUI;$/;"	m	class:NGFExampleApplication	access:protected
+mGUI	include/NGFExampleFrameListener.h	/^	MyGUI::Gui *mGUI;$/;"	m	class:NGFExampleFrameListener	access:protected
+mHealth	include/Player.h	/^	float mHealth;$/;"	m	class:Player	access:protected
+mJustStartedN	include/Level.h	/^	bool mJustStartedN;$/;"	m	class:Level	access:protected
+mJustStartedP	include/Level.h	/^	bool mJustStartedP;$/;"	m	class:Level	access:protected
+mLevel	include/Level.h	/^	String mLevel;$/;"	m	class:Level	access:protected
+mNode	include/LevelGeometry.h	/^	SceneNode *mNode;$/;"	m	class:LevelGeometry	access:protected
+mNode	include/Player.h	/^	SceneNode *mNode;$/;"	m	class:Player	access:protected
+mPythonMethods	include/Player.h	/^	static std::map<Ogre::String, int> mPythonMethods;$/;"	m	class:Player	access:protected
+mPythonMethods	include/Player.h	/^std::map<Ogre::String, int> Player::mPythonMethods = std::map<Ogre::String, int>();$/;"	m	class:Player
+mShape	include/LevelGeometry.h	/^	btCollisionShape *mShape;$/;"	m	class:LevelGeometry	access:protected
+mShape	include/Player.h	/^	btCollisionShape *mShape;$/;"	m	class:Player	access:protected
+mSolver	include/NGFExampleApplication.h	/^	btSequentialImpulseConstraintSolver *mSolver;$/;"	m	class:NGFExampleApplication	access:protected
+mTime	include/Player.h	/^	Real mTime;$/;"	m	class:Player	access:protected
+member_health	include/Player.h	/^		member_health,$/;"	e	enum:Player::__anon1
+member_set_health	include/Player.h	/^		member_set_health$/;"	e	enum:Player::__anon1
+method_applyImpulse	include/Player.h	/^		method_applyImpulse,$/;"	e	enum:Player::__anon1
+method_setPosition	include/Player.h	/^		method_setPosition,$/;"	e	enum:Player::__anon1
+mouseMoved	include/NGFExampleFrameListener.h	/^	bool mouseMoved(const OIS::MouseEvent &arg)$/;"	f	class:NGFExampleFrameListener	access:public	signature:(const OIS::MouseEvent &arg)
+mousePressed	include/NGFExampleFrameListener.h	/^	bool mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)$/;"	f	class:NGFExampleFrameListener	access:public	signature:(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
+mouseReleased	include/NGFExampleFrameListener.h	/^	bool mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)$/;"	f	class:NGFExampleFrameListener	access:public	signature:(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
+pausedTick	include/LevelGeometry.h	/^	void pausedTick(const Ogre::FrameEvent &evt)$/;"	f	class:LevelGeometry	access:public	signature:(const Ogre::FrameEvent &evt)
+pausedTick	include/Player.h	/^	void pausedTick(const Ogre::FrameEvent &evt)$/;"	f	class:Player	access:public	signature:(const Ogre::FrameEvent &evt)
+phyWorld	include/Globals.h	/^    btDynamicsWorld *phyWorld;$/;"	v
+printFunc	include/NGFExampleApplication.h	/^void printFunc(String str)$/;"	f	signature:(String str)
+pythonGet	include/LevelGeometry.h	/^	boost::python::object pythonGet(Ogre::String name)$/;"	f	class:LevelGeometry	access:public	signature:(Ogre::String name)
+pythonMethod	include/LevelGeometry.h	/^	boost::python::object pythonMethod(Ogre::String name, boost::python::object args)$/;"	f	class:LevelGeometry	access:public	signature:(Ogre::String name, boost::python::object args)
+pythonSet	include/LevelGeometry.h	/^	void pythonSet(Ogre::String name, boost::python::object value)$/;"	f	class:LevelGeometry	access:public	signature:(Ogre::String name, boost::python::object value)
+receiveMessage	include/LevelGeometry.h	/^	void receiveMessage(NGF::Message msg)$/;"	f	class:LevelGeometry	access:public	signature:(NGF::Message msg)
+receiveMessage	include/Player.h	/^	void receiveMessage(NGF::Message msg)$/;"	f	class:Player	access:public	signature:(NGF::Message msg)
+setupResources	include/NGFExampleApplication.h	/^	void setupResources(void)$/;"	f	class:NGFExampleApplication	access:protected	signature:(void)
+smgr	include/Globals.h	/^    SceneManager *smgr;$/;"	v
+stop	include/Level.h	/^	void stop()$/;"	f	class:Level	access:public	signature:()
+tick	include/Level.h	/^	void tick(const Ogre::FrameEvent &evt)$/;"	f	class:Level	access:public	signature:(const Ogre::FrameEvent &evt)
+unpausedTick	include/LevelGeometry.h	/^	void unpausedTick(const Ogre::FrameEvent &evt)$/;"	f	class:LevelGeometry	access:public	signature:(const Ogre::FrameEvent &evt)
+unpausedTick	include/Player.h	/^	void unpausedTick(const Ogre::FrameEvent &evt)$/;"	f	class:Player	access:public	signature:(const Ogre::FrameEvent &evt)
+window	include/Globals.h	/^    RenderWindow *window;$/;"	v
+wom	include/Globals.h	/^    NGF::WorldManager *wom;$/;"	v
+~Level	include/Level.h	/^	~Level() $/;"	f	class:Level	access:public	signature:()
+~LevelGeometry	include/LevelGeometry.h	/^	~LevelGeometry()$/;"	f	class:LevelGeometry	access:public	signature:()
+~NGFExampleApplication	include/NGFExampleApplication.h	/^	~NGFExampleApplication()$/;"	f	class:NGFExampleApplication	access:public	signature:()
+~NGFExampleFrameListener	include/NGFExampleFrameListener.h	/^	~NGFExampleFrameListener()$/;"	f	class:NGFExampleFrameListener	access:public	signature:()
+~Player	include/Player.h	/^	~Player()$/;"	f	class:Player	access:public	signature:()

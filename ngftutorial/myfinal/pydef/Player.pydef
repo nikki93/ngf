@@ -1,0 +1,10 @@
+# Class
+class Player
+
+# Methods
+method applyImpulse applyImpulse
+method setPosition setPosition
+method printStuff printStuff
+
+# Properties
+property health mHealth

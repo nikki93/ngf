@@ -1,0 +1,27 @@
++------------------------------+
+| NGF - nikki's Game Framework |
++------------------------------+
+
+NGF is a set of framework classes that helps write software, especially 
+games using Ogre. It requires boost.
+
+To include NGF in your project, just include the file 'Ngf.h' (located 
+in the 'include' folder), and compile and link 'Ngf.cpp' and 'ConfigFile.cpp' 
+with your project.
+
+To build the 'ngftutorials', you'll have to edit the respective 'premake.lua' 
+file to reflect the include and library directories on your computer, and 
+use the 'premake' tool (from http://premake.sourceforge.net/) to build 
+the respective project files. Check the 'premake.lua' files, they're 
+commented.
+
+To use the Blender Exporter, put the file 'ngf_export.py' (located in 
+the 'blenderExport' folder) in your Blender scripts folder (by default, 
+<blender installation folder>/.blender/scripts). To create brushes (objects 
+of the same type, but with different meshes) in Blender, give a property 
+'isBrush' to the object in Blender, and get the mesh name in your code 
+from the 'brushMeshFile' property. You can learn more about using Blender 
+with NGF in the tutorial under the 'docs' folder.
+
+For further documentation and explanation, refer to the manual and tutorial 
+under the 'docs' folder.

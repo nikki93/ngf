@@ -1,0 +1,41 @@
+---------------------------------------------------------------------------
+ngfpydef
+---------------------------------------------------------------------------
+ngfpydef allows you to easily write Python interfaces for PythonGameObjects 
+without messing about with gperf much. To create the hash function, just
+do:
+
+'cat <infile> | ngfpydef | gperf > <outfile>'
+
+Where <infile> is your input file in the format described below, and
+<outfile> is the name of the resultant header file that you should include
+in your application source code.
+
+The 'runpydef.sh' script will automatically do this for files *.pydef
+in the 'pydef' directory from wherever it is invoked.
+
+Then, include the '*_py.h' files before any NGF_PY_BEGIN_IMPL etc. calls.
+
+---------------------------------------------------------------------------
+format
+---------------------------------------------------------------------------
+A sample 'pydef' file:-
+
+# Class
+class Player
+
+# Methods
+method applyImpulse applyImpulse
+method setPosition setPosition
+method printStuff printStuff
+
+# Properties
+property health mHealth
+
+Lines beginning with '#' or ' ' (a space) are comments.
+
+Each line containst the word 'class', 'method' or 'property' followed by
+descriptors. 'class <classname>' is used to signify the C++ class name, 
+'method <pyname> <cname>' connects a Python method name to a C++ method
+name, and 'property <pyname> <cname>' connects a Python data member to
+a C++ data member.
