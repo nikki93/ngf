@@ -14,6 +14,7 @@
  */
 
 #include "ngfplugins/NgfPython.h"
+#include <boost/python/stl_iterator.hpp>
 
 template<> NGF::PythonManager* Ogre::Singleton<NGF::PythonManager>::ms_Singleton = 0;
 NGF::PythonManager::PrintFunc NGF::PythonManager::mPrinter = 0;
@@ -29,18 +30,32 @@ namespace NGF {
     BOOST_PYTHON_MODULE(Ngf)
     {
 	    //Bind some non-class stuff.		
+
+	    //Raw-pointer version.
+	    /*
 	    py::def("createObject", &PythonManager::_createObject, 
 		    py::return_value_policy<py::reference_existing_object>());
 	    py::def("destroyObject", &PythonManager::_destroyObject);
 	    py::def("_print", &PythonManager::_print);
 
-	    PythonObjectConnector* (*getObjectStr) (std::string) = &PythonManager::_getObject;
-	    PythonObjectConnector* (*getObjectID) (int) = &PythonManager::_getObject;
+	    PythonObjectConnectorPtr (*getObjectStr) (std::string) = &PythonManager::_getObject;
+	    PythonObjectConnectorPtr (*getObjectID) (int) = &PythonManager::_getObject;
 	    py::def("getObject", getObjectStr, py::return_value_policy<py::reference_existing_object>());
 	    py::def("getObject", getObjectID, py::return_value_policy<py::reference_existing_object>());
+	    */
+
+	    //Smart-pointer version.
+	    py::def("createObject", &PythonManager::_createObject);
+	    py::def("destroyObject", &PythonManager::_destroyObject);
+	    py::def("_print", &PythonManager::_print);
+
+	    PythonObjectConnectorPtr (*getObjectStr) (std::string) = &PythonManager::_getObject;
+	    PythonObjectConnectorPtr (*getObjectID) (int) = &PythonManager::_getObject;
+	    py::def("getObject", getObjectStr);
+	    py::def("getObject", getObjectID);
 
 	    //Bind our NGF connector.
-	    py::class_<PythonObjectConnector>("GameObjectConnector", py::no_init)
+	    py::class_<PythonObjectConnector, PythonObjectConnectorPtr >("GameObjectConnector", py::no_init)
 		    .def_readwrite("locals", &PythonObjectConnector::mLocals)
 		    .def("method", &PythonObjectConnector::method)
 		    .def("getName", &PythonObjectConnector::getName)
@@ -75,16 +90,17 @@ namespace NGF {
  */
 
     PythonGameObject::PythonGameObject(Ogre::Vector3 pos, Ogre::Quaternion rot, NGF::ID id, NGF::PropertyList properties, Ogre::String name)
-	    : GameObject(pos, rot, id , properties, name)
-	      , mPyEvents(py::dict())
+	    : GameObject(pos, rot, id , properties, name),
+	      mConnector(new PythonObjectConnector(this)),
+	      mPyEvents(py::dict())
     {
 	    //Create connector.
-	    mConnector = new PythonObjectConnector(this);
+	    //mConnector(new PythonObjectConnector(this));
     }
     //--------------------------------------------------------------------------------------
     PythonGameObject::~PythonGameObject()
     {
-	    delete mConnector;
+	    mConnector.reset();
     }
     //--------------------------------------------------------------------------------------
     void PythonGameObject::setUpScript(Ogre::String script)
@@ -238,56 +254,50 @@ namespace NGF {
 	    return ms_Singleton;
     }
     //--------------------------------------------------------------------------------------
-    PythonObjectConnector *PythonManager::_createObject(std::string type, std::string name, Ogre::Vector3 pos, 
+    PythonObjectConnectorPtr PythonManager::_createObject(std::string type, std::string name, Ogre::Vector3 pos, 
 		    Ogre::Quaternion rot, py::dict pyProps)
     {
-	    Ogre::LogManager::getSingleton().logMessage("Type: " + type + ", name: " + name);
-
+	    //Iterate through string-string pairs (tuples) and add properties.
 	    NGF::PropertyList props;
+	    py::stl_input_iterator<py::tuple> iter(pyProps.iteritems()), end;
 	    py::tuple cur;
 
-	    for(;;)
+	    for(; iter != end; ++iter)
 	    {
-		    try 
-		    {
-			    cur = pyProps.popitem();
-		    } 
-		    catch (...) 
-		    {
-			    break;
-		    }
+		    cur = *iter;
 		    props.addProperty(py::extract<std::string>(cur[0]), py::extract<std::string>(cur[1]));
 	    }
 
 	    GameObject *obj = GameObjectManager::getSingleton().createObject(type, pos, rot, props, name);
-	    PythonGameObject *pyobj = dynamic_cast<PythonGameObject*>(obj);
-	    return pyobj ? (pyobj->getConnector()) : NULL;
+	    PythonGameObject *PythonObject = dynamic_cast<PythonGameObject*>(obj);
+	    return PythonObject ? (PythonObject->getConnector()) : PythonObjectConnectorPtr();
     }
     //--------------------------------------------------------------------------------------
-    void PythonManager::_destroyObject(PythonObjectConnector &obj)
+    void PythonManager::_destroyObject(PythonObjectConnector *obj)
     {
-	    PythonGameObject *pyobj = obj.getObject();
-	    GameObjectManager::getSingleton().destroyObject(pyobj->getID());
+	    PythonGameObject *PythonObject = obj->getObject();
+	    Ogre::LogManager::getSingleton().logMessage("Before, ID: " + Ogre::StringConverter::toString(PythonObject->getID()));
+	    GameObjectManager::getSingleton().destroyObject(PythonObject->getID());
     }
     //--------------------------------------------------------------------------------------
-    PythonObjectConnector *PythonManager::_getObject(std::string name)
+    PythonObjectConnectorPtr PythonManager::_getObject(std::string name)
     {
 	    GameObject *obj = GameObjectManager::getSingleton().getByName(name);
 	    if (!obj)
-		    return NULL;
+		    return PythonObjectConnectorPtr();
 
-	    PythonGameObject *pyobj = dynamic_cast<PythonGameObject*>(obj);
-	    return pyobj ? (pyobj->getConnector()) : NULL;
+	    PythonGameObject *PythonObject = dynamic_cast<PythonGameObject*>(obj);
+	    return PythonObject ? (PythonObject->getConnector()) : PythonObjectConnectorPtr();
     }
     //--------------------------------------------------------------------------------------
-    PythonObjectConnector *PythonManager::_getObject(int ID)
+    PythonObjectConnectorPtr PythonManager::_getObject(int ID)
     {
 	    GameObject *obj = GameObjectManager::getSingleton().getByID(ID);
 	    if (!obj)
-		    return NULL;
+		    return PythonObjectConnectorPtr();
 
-	    PythonGameObject *pyobj = dynamic_cast<PythonGameObject*>(obj);
-	    return pyobj ? (pyobj->getConnector()) : NULL;
+	    PythonGameObject *PythonObject = dynamic_cast<PythonGameObject*>(obj);
+	    return PythonObject ? (PythonObject->getConnector()) : PythonObjectConnectorPtr();
     }
 
 } //namespace NGF

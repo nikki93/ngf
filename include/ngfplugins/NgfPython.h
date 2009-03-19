@@ -22,6 +22,7 @@
 #include <Ngf.h>
 #include <python2.6/Python.h>
 #include <boost/python.hpp>
+#include <boost/shared_ptr.hpp>
 
 namespace py = boost::python;
 
@@ -37,10 +38,12 @@ namespace NGF {
  */
 
 class PythonObjectConnector;
+typedef boost::shared_ptr<PythonObjectConnector> PythonObjectConnectorPtr;
+
 class PythonGameObject : public GameObject
 {
     protected:
-	    PythonObjectConnector *mConnector;
+	    PythonObjectConnectorPtr mConnector;
 
 	    py::object mPyEvents;
 
@@ -60,7 +63,7 @@ class PythonGameObject : public GameObject
 	    void runString(Ogre::String script);
 
 	    //Get the connector.
-	    PythonObjectConnector *getConnector() { return mConnector; }
+	    PythonObjectConnectorPtr getConnector() { return mConnector; }
 
 	    //Sets up the script.
 	    void setUpScript(Ogre::String script);
@@ -99,12 +102,12 @@ class PythonManager : public Ogre::Singleton<PythonManager>
 
 	    //--- Python binds, internal stuff -------------------------------------
 	    
-	    static PythonObjectConnector *_createObject(std::string type, std::string name = "", 
+	    static PythonObjectConnectorPtr _createObject(std::string type, std::string name = "", 
 		    Ogre::Vector3 pos = Ogre::Vector3::ZERO, Ogre::Quaternion = Ogre::Quaternion::IDENTITY, 
 		    py::dict props = py::dict());
-	    static void _destroyObject(PythonObjectConnector &obj);
-	    static PythonObjectConnector *_getObject(std::string name);
-	    static PythonObjectConnector *_getObject(int ID);
+	    static void _destroyObject(PythonObjectConnector *obj);
+	    static PythonObjectConnectorPtr _getObject(std::string name);
+	    static PythonObjectConnectorPtr _getObject(int ID);
 
 	    static void _print(std::string str) { if (mPrinter) mPrinter(str); }
 };

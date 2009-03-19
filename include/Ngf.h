@@ -358,7 +358,7 @@ public:
 	bool destroyObject(ID objID);
 
 	//Requests the GameObjectManager to destroy a GameObject soon. This is needed
-	//if an object wants to destroy itself.
+	//if an object wants to destroy itself, or for other crazy situations.
 	void requestDestroy(ID objID) { mObjectsToDestroy.push_back(objID); }
 
 	//Destroys all the GameObjects that exist.
