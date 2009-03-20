@@ -15,8 +15,9 @@
 
 #include "Ngf.h"
 
-template<> NGF::GameObjectManager* Ogre::Singleton<NGF::GameObjectManager>::ms_Singleton = 0;
 template<> NGF::GameObjectFactory* Ogre::Singleton<NGF::GameObjectFactory>::ms_Singleton = 0;
+template<> NGF::GameObjectManager* Ogre::Singleton<NGF::GameObjectManager>::ms_Singleton = 0;
+template<> NGF::WorldManager* Ogre::Singleton<NGF::WorldManager>::ms_Singleton = 0;
 
 namespace NGF {
 
@@ -460,6 +461,15 @@ namespace NGF {
  * =====================================================================================
  */
 
+    WorldManager& WorldManager::getSingleton(void)
+    {
+	    assert(ms_Singleton); return *ms_Singleton;
+    }
+    WorldManager* WorldManager::getSingletonPtr(void)
+    {
+	    return ms_Singleton;
+    }
+    //----------------------------------------------------------------------------------
     WorldManager::WorldManager()
     {
 	    shuttingdown = false;

@@ -277,7 +277,7 @@ namespace NGF {
     {
 	    PythonGameObject *PythonObject = obj->getObject();
 	    Ogre::LogManager::getSingleton().logMessage("Before, ID: " + Ogre::StringConverter::toString(PythonObject->getID()));
-	    GameObjectManager::getSingleton().destroyObject(PythonObject->getID());
+	    GameObjectManager::getSingleton().requestDestroy(PythonObject->getID());
     }
     //--------------------------------------------------------------------------------------
     PythonObjectConnectorPtr PythonManager::_getObject(std::string name)

@@ -28,6 +28,10 @@ namespace py = boost::python;
 
 namespace NGF {
 
+class PythonObjectConnector;
+//For easy Python-connectivity.
+typedef boost::shared_ptr<PythonObjectConnector> PythonObjectConnectorPtr;
+
 /*
  * =====================================================================================
  *        Class:  PythonGameObject
@@ -36,9 +40,6 @@ namespace NGF {
  *  		  The idea is similar to that followed in 'SimKin'.
  * =====================================================================================
  */
-
-class PythonObjectConnector;
-typedef boost::shared_ptr<PythonObjectConnector> PythonObjectConnectorPtr;
 
 class PythonGameObject : public GameObject
 {

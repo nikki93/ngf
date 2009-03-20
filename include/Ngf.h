@@ -491,7 +491,7 @@ public:
  * =====================================================================================
  */
 
-class WorldManager
+class WorldManager : public Ogre::Singleton<NGF::WorldManager>
 {
 protected:
 	unsigned int currentWorld;
@@ -505,7 +505,7 @@ public:
 
 	//Shutdown. Doesn't really shutdown, it just makes it return false
 	//from the tick function, you gotta do the actual shutdown yourself.
-	void shutdown(void);
+	void shutdown();
 
 	//Tick function. Call it every frame. Shutdown if it returns false.
 	bool tick(const Ogre::FrameEvent &evt);
@@ -519,16 +519,21 @@ public:
 	void start(unsigned int firstWorld);
 
 	//Go to the next world.
-	void nextWorld(void);
+	void nextWorld();
 
 	//Go to the previous world.
-	bool previousWorld(void);
+	bool previousWorld();
 
 	//Jump to the specified world.
 	void gotoWorld(unsigned int worldNumber);
 
 	//Get the index number of the currently playing world.
 	unsigned int getCurrentWorldIndex();
+
+	//------ Singleton functions ------------------------------
+	
+	static WorldManager& getSingleton(void);
+	static WorldManager* getSingletonPtr(void);
 };
 
 namespace Loading {
