@@ -107,25 +107,25 @@ typedef std::vector<boost::any> MessageParams;
 struct Message
 {
 protected:
-	MessageParams params;
-	Ogre::String subject;
-	Ogre::String body;
+	Ogre::String mName;
+	MessageParams mParams;
 
 public:
 	//Create a Message with the given subject, body and parameters.
-	Message(Ogre::String sub, Ogre::String bod, MessageParams parameters = MessageParams())
-	    : subject(sub),
-	      body(bod),
-	      params(parameters)
+	Message(Ogre::String name, MessageParams parameters = MessageParams())
+	    : mName(name),
+	      mParams(parameters)
 	{
 	}
 
 	//These methods allow you to get the subject, body and parameters respectively.
 	
-	Ogre::String getSubject() { return subject; }
-	Ogre::String getBody() { return body; }
-	template<typename T> T getParam(int index) { return boost::any_cast<T>(params[index]); }
+	Ogre::String getName() { return mName; }
+	template<typename T> T getParam(int index) { return boost::any_cast<T>(mParams[index]); }
 
+	//So you can do:
+	// gom->sendMessage(obj, (NGF::Message("printStuff"), Vector3(10,20,30), Quaternion(1,2,3,4)));
+	template<typename T> Message& operator,(T thing) { mParams.push_back(boost::any(thing)); return *this; }
 };
 
 /*
@@ -584,10 +584,9 @@ public:
 
 } //namespace Loading
 
-//------ Some useful utility functions ------------------------
+//------ Some useful utility stuff ----------------------------
 
-//Let's say you have some function that accepts a vector of integers, "int addNumbers(std::vector<int> integers);"
-//Why waste code space doing a bunch of myVector.push_back(3), myVector.push_back(5), etc. when you can do this:
+//InlineVector allows this:
 //
 //addNumbers(InlineVector<int>(3)(5)(10)); //Returns 18
 //
@@ -597,8 +596,6 @@ class InlineVector : public std::vector<T>
 {
 public:
 	InlineVector() { }
-
-	InlineVector(InlineVector &v) { this->swap(v); }
 
 	explicit InlineVector(const T &firstArg) : std::vector<T>(1, firstArg) { }
 

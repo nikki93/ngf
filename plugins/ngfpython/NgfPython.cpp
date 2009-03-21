@@ -226,19 +226,9 @@ namespace NGF {
 		    "sys.stdout = outputRedirector\n"
 		    "sys.stderr = outputRedirector\n\n"
 
-		    /*
-		    //'createObject' with default arguments. I could never get 'em to work with direct
-		    //C++ binding.
-		    "def tmp_createObject(type, name = \"\", pos = Ngf.Vector3(0,0,0), rot = Ngf.Quaternion(1,0,0,0), props = {}):\n"
-		    " 	Ngf._createObject(type,name,pos,rot,props)\n\n"
-
-		    "Ngf.createObject = tmp_createObject\n\n"
-		    */
-
 		    //Remove the temporaries.
 		    "del tmp_GameObjectConnector__getattr__\n"
 		    "del tmp_GameObjectConnector__setattr__\n"
-		    //"del tmp_createObject\n"
 		    ,mMainNamespace,mMainNamespace
 		    );
     }
