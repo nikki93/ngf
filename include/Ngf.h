@@ -58,11 +58,20 @@
 #include "FastDelegate.h"
 
 //Send a reply. Used inside a GameObject::receiveMessage() function.
-#define NGF_SEND_REPLY(value) {NGF::GameObjectManager::getSingletonPtr()->setReply(value);}
+//#define NGF_SEND_REPLY(value) {NGF::GameObjectManager::getSingletonPtr()->setReply(value);}
 
 //Register a GameObject type. For easy registration if you're too lazy to type both the
 //typename and a string. ;-)
 #define NGF_REGISTER_OBJECT_TYPE(type) NGF::GameObjectFactory::getSingleton().registerObjectType< type >( #type )
+
+//Allows NGF_MESSAGE(setTransform, Vector3(10,20,30), Quaternion(1,2,3,4))
+#define NGF_MESSAGE(name, ...) (NGF::Message( name ), ##__VA_ARGS__)
+
+//For consistency with 'NGF_NO_REPLY', because 'return' looks different.
+#define NGF_SEND_REPLY(arg) return boost::any(arg)
+
+//For 'void messages'.
+#define NGF_NO_REPLY() return boost::any()
 
 namespace NGF {
 
@@ -99,6 +108,10 @@ public:
  *               GameObjects. It uses the MessageParams typedef, which allows you to
  *               send any number of copy-constructible (Vector3, Quaternion etc) objects
  *		 in a message. This requres boost.
+ *
+ *		 Messages also have an unsigned 'code' field so you can use them with
+ *		 enums and 'switch'. It is recommended to use '0' as a 'no code' field, 
+ *		 because that's the default in case no code is given.
  * =====================================================================================
  */
 
@@ -106,26 +119,23 @@ typedef std::vector<boost::any> MessageParams;
 
 struct Message
 {
-protected:
-	Ogre::String mName;
-	MessageParams mParams;
+	Ogre::String name;
+	MessageParams params;
+	unsigned int code;
 
-public:
-	//Create a Message with the given subject, body and parameters.
-	Message(Ogre::String name, MessageParams parameters = MessageParams())
-	    : mName(name),
-	      mParams(parameters)
-	{
-	}
-
-	//These methods allow you to get the subject, body and parameters respectively.
+	//Create a Message with the given name or code and parameters.
 	
-	Ogre::String getName() { return mName; }
-	template<typename T> T getParam(int index) { return boost::any_cast<T>(mParams[index]); }
+	Message(Ogre::String nm, MessageParams parameters = MessageParams())
+	    : name(nm), code(0), params(parameters) { }
+	Message(unsigned int cod, MessageParams parameters = MessageParams())
+	    : name(""), code(cod), params(parameters) { }
+
+	//These methods allow you to get the name, code and parameters respectively.
+	template<typename T> T getParam(int index) { return boost::any_cast<T>(params[index]); }
 
 	//So you can do:
 	// gom->sendMessage(obj, (NGF::Message("printStuff"), Vector3(10,20,30), Quaternion(1,2,3,4)));
-	template<typename T> Message& operator,(T thing) { mParams.push_back(boost::any(thing)); return *this; }
+	template<typename T> Message& operator,(T thing) { params.push_back(boost::any(thing)); return *this; }
 };
 
 /*
@@ -139,6 +149,9 @@ public:
 
 //Each GameObject has a unique ID.
 typedef unsigned int ID;
+
+//So users don't have to know about boost.
+typedef boost::any Any;
 
 class GameObject : public Ogre::UserDefinedObject
 {
@@ -174,7 +187,7 @@ public:
 	virtual void pausedTick(const Ogre::FrameEvent& evt) { }
 
 	//Called when a message is received.
-	virtual void receiveMessage(Message msg) { }
+	virtual Any receiveMessage(Message msg) { }
 
 #ifdef NGF_USE_OGREODE
 	//Called on collision with a physics object. If you are using OgreOde, define
@@ -302,8 +315,6 @@ protected:
 
 	int mCurrentIDNo;
 
-	boost::any mReply;
-
 #ifdef NGF_USE_OGREBULLET
 	OgreBulletCollisions::CollisionsWorld *mPhysicsWorld;
 #endif
@@ -388,13 +399,6 @@ public:
 	//NGF_SEND_REPLY(reply) in a GameObject::receiveMessage() function.
 	template<class ReturnType>
 	ReturnType sendMessageWithReply(GameObject *obj, Message msg);
-
-	//This function should be called by the GameObject while receiving
-	//a message if the sender expects a reply. If no reply is sent,
-	//the sender will get an empty boost::any.
-	//
-	//You can use NGF_SEND_REPLY(reply) instead.
-	void setReply(boost::any arg) { mReply = arg; }
 
 	//------ Collision event functions ------------------------
 
@@ -698,20 +702,20 @@ ReturnType GameObjectManager::sendMessageWithReply(GameObject *obj, Message msg)
 {
 	if (obj)
 	{
-		ReturnType retVal;
-		mReply = boost::any();
-		obj->receiveMessage(msg);
+		boost::any reply = obj->receiveMessage(msg);
+
+		if (reply.empty())
+			OGRE_EXCEPT(Ogre::Exception::ERR_INVALID_STATE, "No reply!", "NGF::GameObjectManager::sendMessageWithReply()");
 
 		try
 		{
-			retVal =  boost::any_cast<ReturnType>(mReply);
+			return boost::any_cast<ReturnType>(reply);
 		}
 		catch (boost::bad_any_cast)
 		{
-			OGRE_EXCEPT(Ogre::Exception::ERR_INVALID_STATE, "Bad ReturnType, or no reply!", "NGF::GameObjectManager::sendMessageWithReply()");
+			OGRE_EXCEPT(Ogre::Exception::ERR_INVALID_STATE, "Bad ReturnType!", "NGF::GameObjectManager::sendMessageWithReply()");
 		}
 
-		return retVal;
 	}
 	OGRE_EXCEPT(Ogre::Exception::ERR_ITEM_NOT_FOUND, "GameObject doesn't exist!", "NGF::GameObjectManager::sendMessageWithReply()");
 }
