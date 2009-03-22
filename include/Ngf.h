@@ -64,10 +64,10 @@
 //typename and a string. ;-)
 #define NGF_REGISTER_OBJECT_TYPE(type) NGF::GameObjectFactory::getSingleton().registerObjectType< type >( #type )
 
-//Allows NGF_MESSAGE(setTransform, Vector3(10,20,30), Quaternion(1,2,3,4))
+//Allows NGF_MESSAGE(MSG_SETTRANSFORM, Vector3(10,20,30), Quaternion(1,2,3,4))
 #define NGF_MESSAGE(name, ...) (NGF::Message( name ), ##__VA_ARGS__)
 
-//For consistency with 'NGF_NO_REPLY', because 'return' looks different.
+//For consistency with 'NGF_NO_REPLY', because 'return boost::any(something)' looks different.
 #define NGF_SEND_REPLY(arg) return boost::any(arg)
 
 //For 'void messages'.
@@ -88,6 +88,9 @@ class PropertyList : public std::map<Ogre::String, std::vector<Ogre::String> >
 {
 public:
 	PropertyList() { }
+
+	//Convert from 'usual' map.
+	PropertyList(std::map<Ogre::String, std::vector<Ogre::String> > &x) { this->swap(x); }
 
 	//Get a value. It returns defaultVal if the key isn't found or the index is out of bounds.
 	Ogre::String getValue(Ogre::String key, unsigned int index, Ogre::String defaultVal);
@@ -151,7 +154,7 @@ struct Message
 typedef unsigned int ID;
 
 //So users don't have to know about boost.
-typedef boost::any Any;
+typedef boost::any MessageReply;
 
 class GameObject : public Ogre::UserDefinedObject
 {
@@ -187,7 +190,7 @@ public:
 	virtual void pausedTick(const Ogre::FrameEvent& evt) { }
 
 	//Called when a message is received.
-	virtual Any receiveMessage(Message msg) { }
+	virtual MessageReply receiveMessage(Message msg) { }
 
 #ifdef NGF_USE_OGREODE
 	//Called on collision with a physics object. If you are using OgreOde, define

@@ -89,13 +89,11 @@ namespace NGF {
  * =============================================================================================
  */
 
-    PythonGameObject::PythonGameObject(Ogre::Vector3 pos, Ogre::Quaternion rot, NGF::ID id, NGF::PropertyList properties, Ogre::String name)
+    PythonGameObject::PythonGameObject(Ogre::Vector3 pos, Ogre::Quaternion rot, ID id, PropertyList properties, Ogre::String name)
 	    : GameObject(pos, rot, id , properties, name),
 	      mConnector(new PythonObjectConnector(this)),
 	      mPyEvents(py::dict())
     {
-	    //Create connector.
-	    //mConnector(new PythonObjectConnector(this));
     }
     //--------------------------------------------------------------------------------------
     PythonGameObject::~PythonGameObject()
@@ -199,7 +197,7 @@ namespace NGF {
 
 		    //This code allows us to write 'self.someMethod()' for 'self.method("someMethod", ()),
 		    //while allowing variables of form 'm_' to be used locally by scripts, and 'p_' to
-		    //refer to C++ members.
+		    //refer to C++ members. Closures FTW!
 		    "def tmp_GameObjectConnector__getattr__(self, name):\n"
 		    " 	if (name[:2] == \"m_\"):\n"
 		    " 		return self.locals[name]\n"

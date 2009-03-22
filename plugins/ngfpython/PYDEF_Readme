@@ -21,21 +21,16 @@ format
 ---------------------------------------------------------------------------
 A sample 'pydef' file:-
 
-# Class
-class Player
+NGF_PY_BEGIN_DECL(Player)
+{
+    NGF_PY_METHOD_DECL(applyImpulse)
+    NGF_PY_METHOD_DECL(setPosition)
+    NGF_PY_METHOD_DECL(printStuff)
 
-# Methods
-method applyImpulse applyImpulse
-method setPosition setPosition
-method printStuff printStuff
+    NGF_PY_PROPERTY_DECL(health)
+}
+NGF_PY_END_DECL
 
-# Properties
-property health mHealth
+Its a direct copy of the declaration format, so you can easily copy your
+declaration and filter that text.
 
-Lines beginning with '#' or ' ' (a space) are comments.
-
-Each line containst the word 'class', 'method' or 'property' followed by
-descriptors. 'class <classname>' is used to signify the C++ class name, 
-'method <pyname> <cname>' connects a Python method name to a C++ method
-name, and 'property <pyname> <cname>' connects a Python data member to
-a C++ data member.

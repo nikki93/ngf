@@ -8,7 +8,6 @@
  *        Version:  1.0
  *        Created:  02/27/2009 11:40:53 PM
  *       Revision:  none
- *       Compiler:  gcc
  *
  *         Author:  Nikhilesh (nikki)
  *
@@ -38,10 +37,13 @@ typedef boost::shared_ptr<PythonObjectConnector> PythonObjectConnectorPtr;
  *
  *  Description:  A scriptable GameObject. Implement the get, set and method functions.
  *  		  The idea is similar to that followed in 'SimKin'.
+ *
+ *  		  We don't inherit from NGF::GameObject here to prevent
+ *  		  multiple-inheritance problems.
  * =====================================================================================
  */
 
-class PythonGameObject : public GameObject
+class PythonGameObject : virtual public GameObject
 {
     protected:
 	    PythonObjectConnectorPtr mConnector;
@@ -49,8 +51,7 @@ class PythonGameObject : public GameObject
 	    py::object mPyEvents;
 
     public:
-	    PythonGameObject(Ogre::Vector3 pos, Ogre::Quaternion rot, NGF::ID id, 
-			    NGF::PropertyList properties, Ogre::String name);
+	    PythonGameObject(Ogre::Vector3, Ogre::Quaternion, ID, PropertyList, Ogre::String name);
 	    virtual ~PythonGameObject();
 
 	    //--- Python GameObject interface, called through Python, via the 'connector' --
@@ -172,36 +173,29 @@ class PythonObjectConnector
  * =====================================================================================
  *       Macros:  NGF_PY_*
  *
- *  Description:  Makes it easier to write methods and map properties from C++ to
- *  		  Python. Uses gperf for string hashing.
+ *  Description:  These macros make it easy to write methods useable from Python and
+ *  		  map C++ member variables to Python attributes. Uses gperf for hashing,
+ *  		  the tool 'ngfpydef' eases writing gperf configuration files by just
+ *  		  parsing your '*_DECL' macros.
  * =====================================================================================
  */
 
-//Hacks for method declarations.
-#define NGF_PY_BEGIN_DECL py::object pythonMethod(Ogre::String name, py::object args); enum
+//Macros for beginning or ending method or property declarations or implementations.
+#define NGF_PY_BEGIN_DECL(classnm) py::object pythonMethod(Ogre::String name, py::object args); enum
 #define NGF_PY_END_DECL ;
-#define NGF_PY_METHOD_DECL(pyname) pm_ ## pyname,
-#define NGF_PY_PROPERTY_DECL(pyname) pget_ ## pyname, pset_ ## pyname,
-
-//Hacks for inline definitions.
-#define NGF_PY_BEGIN_INLINE py::object pythonMethod(Ogre::String NGF_name, py::object args) { \
-    const PythonMethod *NGF_res = PythonHash_ ## classnm ::Lookup(NGF_name.c_str(), NGF_name.length()); \
-    if ( NGF_res ) switch ( NGF_res->code ) {
-#define NGF_PY_END_INLINE } return py::object(); }
-
-//Hacks for 'out-of-header' implementations.
 #define NGF_PY_BEGIN_IMPL(classnm) py::object classnm ::pythonMethod(Ogre::String NGF_name, py::object args) { \
     const PythonMethod *NGF_res = PythonHash_ ## classnm ::Lookup(NGF_name.c_str(), NGF_name.length()); \
     if ( NGF_res ) switch ( NGF_res->code ) {
 #define NGF_PY_END_IMPL } return py::object(); }
 
-//Hacks for implementing methods or properties, can be used both in 'inline's or in 'impl's.
-#define NGF_PY_METHOD(pyname) case (pm_ ## pyname):
-#define NGF_PY_PROPERTY(cname,ctype) case (pget_ ## cname): { return py::object(cname); } \
-    case (pset_ ## cname): { cname = py::extract<ctype>(args[0]); return py::object(); }
+//Macros for declaring or implementing methods or properties.
+#define NGF_PY_METHOD_DECL(pyname) pm_ ## pyname,
+#define NGF_PY_PROPERTY_DECL(pyname) pget_ ## pyname, pset_ ## pyname,
+#define NGF_PY_METHOD_IMPL(pyname) case (pm_ ## pyname):
+#define NGF_PY_PROPERTY_IMPL(pyname,cname,ctype) case (pget_ ## pyname): { return py::object(cname); } \
+    case (pset_ ## pyname): { cname = py::extract<ctype>(args[0]); return py::object(); }
 
-//Hacks for easy gperf-writing. Just write <python-name> NGF_PY_METHOD_GPERF(<class-name>, <enum-name>)
-//in your gperf keywords list.
+//Used by 'ngfpydef', you don't usually have to use these yourself.
 #define NGF_PY_CLASS_GPERF(classnm) PythonHash_ ## classnm 
 #define NGF_PY_METHOD_GPERF(classnm,pyname) classnm :: pm_ ## pyname
 #define NGF_PY_GET_GPERF(classnm,pyname) classnm :: pget_ ## pyname
