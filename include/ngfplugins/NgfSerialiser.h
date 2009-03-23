@@ -20,8 +20,8 @@
 #include <Ogre.h> //Change this to only include specific headers when done.
 #include <Ngf.h>
 
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/map.hpp>
 
@@ -85,8 +85,8 @@ class GameObjectRecord
 class SerialisableGameObject : virtual public GameObject
 {
     public:
-	    SerialisableGameObject(Ogre::Vector3 pos, Ogre::Quaternion rot, ID id, PropertyList props, Ogre::String name)
-		    : GameObject(pos, rot, id , props, name)
+	    SerialisableGameObject()
+		    : GameObject(Ogre::Vector3(), Ogre::Quaternion(), ID(), PropertyList(), "")
 	    {
 	    }
 
@@ -111,29 +111,29 @@ class Serialiser : public Ogre::Singleton<Serialiser>
 {
     protected:
 	static std::vector<GameObjectRecord> mRecords;
+	static int mSig[];
 
     public:
 	//Save the game. Automatically saves all GameObjects inheriting form 'SerialisableGameObject'.
-	static void save(Ogre::String filename)
+	static void save(Ogre::String filename, Ogre::String password = "42-1337")
 	{
 		mRecords.clear();
 		GameObjectManager::getSingleton().forEachGameObject(_saveOne);
 
 		std::ofstream ofs(filename.c_str());
-		boost::archive::binary_oarchive oa(ofs);
+		boost::archive::text_oarchive oa(ofs);
 		oa << mRecords;
-		mRecords.clear();
 	}
 
 	//Load the game. Creates GameObjects based on the type contained in the GameObjectRecord, and
 	//passes the object the relevant information through it's 'load' method. The GameObject also
 	//receives the PropertyList when it is created.
-	static void load(Ogre::String filename)
+	static void load(Ogre::String filename, Ogre::String password = "42-1337")
 	{
 		mRecords.clear();
 		{
 			std::ifstream ifs(filename.c_str());
-			boost::archive::binary_iarchive ia(ifs);
+			boost::archive::text_iarchive ia(ifs);
 			ia >> mRecords;
 		}
 
@@ -154,7 +154,6 @@ class Serialiser : public Ogre::Singleton<Serialiser>
 			if (obj)
 				obj->serialise(false, info);
 		} 
-		mRecords.clear();
 	}
 
 	//--- Internal stuff --------------------------------------------------------------
@@ -183,18 +182,17 @@ std::vector<GameObjectRecord> Serialiser::mRecords = std::vector<GameObjectRecor
  *       Macros:  NGF_SERIALISE_*
  *
  *  Description:  These macros make defining the 'serialise' function easier for
- *  		  Ogre datatypes (Real, Vector3, Quaternion etc.).
+ *  		  Ogre datatypes (Real, Vector3, Quaternion etc.). If you look at the
+ *  		  macros below together, you can see a 'serialise' function take form.
+ *  		  ;-)
  * =====================================================================================
  */
 
 #define NGF_SERIALISE_BEGIN(classnm)                                                           \
-	NGF::GameObjectRecord serialise(bool save, NGF::PropertyList &in)  {                   \
+	NGF::GameObjectRecord serialise(bool save, NGF::PropertyList &in)                      \
+	{                                                                                      \
 	    NGF::PropertyList out;                                                             \
 	    Ogre::String type = #classnm;
-
-#define NGF_SERIALISE_END                                                                      \
-	    return NGF::GameObjectRecord( type , out);                                         \
-	}
 
 #define NGF_SERIALISE_POSITION(pos)                                                            \
 	    if (save)                                                                          \
@@ -204,13 +202,27 @@ std::vector<GameObjectRecord> Serialiser::mRecords = std::vector<GameObjectRecor
             if (save)                                                                          \
                 out.addProperty("NGF_ROTATION", Ogre::StringConverter::toString(rot), "")
 
-#define NGF_SERIALISE_AUTO(type, var)                                                          \
-	if (save) {                                                                            \
-            out.addProperty( #var , Ogre::StringConverter::toString(var), "");                 \
-        } else  {                                                                              \
-            Ogre::String var ## str = in.getValue( #var, 0, "n");                              \
-            if ( var ## str != "n")                                                            \
-	        var = Ogre::StringConverter::parse ## type ( var ## str );                     \
+#define NGF_SERIALISE_STRING(var)                                                              \
+	    if (save) {                                                                        \
+		out.addProperty( #var , var, "");                                              \
+	    } else  {                                                                          \
+		var = in.getValue( #var, 0, "");                                               \
+	    }
+
+#define NGF_SERIALISE_OGRE(type, var)                                                          \
+	    if (save) {                                                                        \
+		out.addProperty( #var , Ogre::StringConverter::toString(var), "");             \
+	    } else  {                                                                          \
+		Ogre::String var ## str = in.getValue( #var, 0, "n");                          \
+		if ( var ## str != "n")                                                        \
+		    var = Ogre::StringConverter::parse ## type ( var ## str );                 \
+	    }
+
+#define NGF_SERIALISE_ON_SAVE if(save)
+#define NGF_SERIALISE_ON_LOAD if(!save)
+
+#define NGF_SERIALISE_END                                                                      \
+	    return NGF::GameObjectRecord( type , out);                                         \
 	}
 
 

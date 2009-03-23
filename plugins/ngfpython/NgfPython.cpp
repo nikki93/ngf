@@ -71,6 +71,7 @@ namespace NGF {
 		    .def_readwrite("x", &Ogre::Vector3::x)
 		    .def_readwrite("y", &Ogre::Vector3::y)
 		    .def_readwrite("z", &Ogre::Vector3::z)
+		    .enable_pickling()
 		    ;
 	    
 	    //Bind Ogre::Quaternion.
@@ -80,6 +81,7 @@ namespace NGF {
 		    .def_readwrite("x", &Ogre::Quaternion::x)
 		    .def_readwrite("y", &Ogre::Quaternion::y)
 		    .def_readwrite("z", &Ogre::Quaternion::z)
+		    .enable_pickling()
 		    ;
     }
 
@@ -89,8 +91,8 @@ namespace NGF {
  * =============================================================================================
  */
 
-    PythonGameObject::PythonGameObject(Ogre::Vector3 pos, Ogre::Quaternion rot, ID id, PropertyList properties, Ogre::String name)
-	    : GameObject(pos, rot, id , properties, name),
+    PythonGameObject::PythonGameObject()
+	    : GameObject(Ogre::Vector3(), Ogre::Quaternion(), ID(), PropertyList(), ""),
 	      mConnector(new PythonObjectConnector(this)),
 	      mPyEvents(py::dict())
     {
@@ -149,7 +151,7 @@ namespace NGF {
 	    else
 	    {
 		    //No events, bind some empty functions.
-		    mPyEvents["init"] = py::eval("lambda *args: 0", main, main); 
+		    mPyEvents["init"] = py::eval("lambda *args: None", main, main); 
 		    mPyEvents["create"] = mPyEvents["init"];
 		    mPyEvents["destroy"] = mPyEvents["init"];
 		    mPyEvents["utick"] = mPyEvents["init"];
@@ -190,13 +192,13 @@ namespace NGF {
 	    //Set the printer.
 	    mPrinter = printer;
 
-	    //Some Python stuff.
+	    //We give up and write the rest in Python. :P
 	    py::exec(
 		    "import sys\n"
 		    "import Ngf\n\n"
 
 		    //This code allows us to write 'self.someMethod()' for 'self.method("someMethod", ()),
-		    //while allowing variables of form 'm_' to be used locally by scripts, and 'p_' to
+		    //while allowing variables of form 'm_*' to be used locally by scripts, and 'p_*' to
 		    //refer to C++ members. Closures FTW!
 		    "def tmp_GameObjectConnector__getattr__(self, name):\n"
 		    " 	if (name[:2] == \"m_\"):\n"
@@ -212,7 +214,9 @@ namespace NGF {
 		    " 		self.method(\"set_\" + name[2:], (value,))\n\n"
 
 		    "Ngf.GameObjectConnector.__getattr__ = tmp_GameObjectConnector__getattr__\n"
-		    "Ngf.GameObjectConnector.__setattr__ = tmp_GameObjectConnector__setattr__\n\n"
+		    "Ngf.GameObjectConnector.__setattr__ = tmp_GameObjectConnector__setattr__\n"
+		    "del tmp_GameObjectConnector__getattr__\n"
+		    "del tmp_GameObjectConnector__setattr__\n\n"
 
 		    //We override the output to send it to our own callback instead. The old streams remain 
 		    //in sys.__stdout__, sys.__stderr__.
@@ -224,9 +228,18 @@ namespace NGF {
 		    "sys.stdout = outputRedirector\n"
 		    "sys.stderr = outputRedirector\n\n"
 
-		    //Remove the temporaries.
-		    "del tmp_GameObjectConnector__getattr__\n"
-		    "del tmp_GameObjectConnector__setattr__\n"
+		    //For pickling support. The way this is done is really cool. You just pass a tuple
+		    //containing __init__ arguments to construct the new object with!
+		    "def tmp_Vector3__getinitargs__(self):\n"
+		    " 	return (self.x, self.y, self.z)\n"
+		    "Ngf.Vector3.__getinitargs__ = tmp_Vector3__getinitargs__\n"
+		    "del tmp_Vector3__getinitargs__\n\n"
+
+		    "def tmp_Quaternion__getinitargs__(self):\n"
+		    " 	return (self.w, self.x, self.y, self.z)\n"
+		    "Ngf.Quaternion.__getinitargs__ = tmp_Quaternion__getinitargs__\n"
+		    "del tmp_Quaternion__getinitargs__\n\n"
+
 		    ,mMainNamespace,mMainNamespace
 		    );
     }

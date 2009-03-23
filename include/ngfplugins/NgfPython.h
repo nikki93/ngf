@@ -51,7 +51,7 @@ class PythonGameObject : virtual public GameObject
 	    py::object mPyEvents;
 
     public:
-	    PythonGameObject(Ogre::Vector3, Ogre::Quaternion, ID, PropertyList, Ogre::String name);
+	    PythonGameObject();
 	    virtual ~PythonGameObject();
 
 	    //--- Python GameObject interface, called through Python, via the 'connector' --
@@ -148,6 +148,54 @@ class PythonObjectConnector
 	    //Get pointer to our GameObject.
 	    PythonGameObject *getObject() { return mObj; }
 
+	    //Dump locals to a string using pickle. Useful if you want to save your GameObject's
+	    //state.
+	    Ogre::String dumpLocals()
+	    {
+		    py::object &main = PythonManager::getSingleton().getMainNamespace();
+
+		    //Python stuff is best done in python. ;-)
+		    py::exec(
+				    "import pickle\n\n"
+
+				    "def dump(obj):\n"
+				    " 	return pickle.dumps(obj.locals)\n",
+				    main, main
+			    );
+		    Ogre::String dump = py::extract<Ogre::String>(main["dump"](this));
+
+		    //Clean up after ourselves!
+		    py::exec(
+				    "del dump\n",
+				    main, main
+			    );
+
+		    return dump;
+	    }
+
+	    //Load locals from a string using pickle. Useful if you want to save your GameObject's
+	    //state.
+	    void loadLocals(Ogre::String str)
+	    {
+		    py::object &main = PythonManager::getSingleton().getMainNamespace();
+
+		    //Python stuff is best done in python. ;-)
+		    py::exec(
+				    "import pickle\n\n"
+
+				    "def load(str):\n"
+				    " 	return pickle.loads(str)\n",
+				    main, main
+			    );
+		    mLocals = main["load"](str);
+
+		    //Clean up after ourselves!
+		    py::exec(
+				    "del load\n",
+				    main, main
+			    );
+	    }
+
 	    //--- Python calls this, this tells the GameObject ---------------------
 
 	    py::object method(std::string name, py::object args) 
@@ -200,5 +248,13 @@ class PythonObjectConnector
 #define NGF_PY_METHOD_GPERF(classnm,pyname) classnm :: pm_ ## pyname
 #define NGF_PY_GET_GPERF(classnm,pyname) classnm :: pget_ ## pyname
 #define NGF_PY_SET_GPERF(classnm,pyname) classnm :: pset_ ## pyname
+
+//This is for use with the NGF::Serialiser library.
+#define NGF_PY_SERIALISE_LOCALS()                                                              \
+	    if (save) {                                                                        \
+		out.addProperty("NGF_PY_LOCALS" , mConnector->dumpLocals(), "");               \
+	    } else  {                                                                          \
+		mConnector->loadLocals(in.getValue("NGF_PY_LOCALS", 0, "'(dp0\n.'"));          \
+	    }
 
 #endif //#ifndef __NGF_PYTHON_H__
