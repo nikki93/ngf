@@ -115,7 +115,7 @@ class Serialiser : public Ogre::Singleton<Serialiser>
 
     public:
 	//Save the game. Automatically saves all GameObjects inheriting form 'SerialisableGameObject'.
-	static void save(Ogre::String filename, Ogre::String password = "42-1337")
+	static void save(Ogre::String filename)
 	{
 		mRecords.clear();
 		GameObjectManager::getSingleton().forEachGameObject(_saveOne);
@@ -128,7 +128,7 @@ class Serialiser : public Ogre::Singleton<Serialiser>
 	//Load the game. Creates GameObjects based on the type contained in the GameObjectRecord, and
 	//passes the object the relevant information through it's 'load' method. The GameObject also
 	//receives the PropertyList when it is created.
-	static void load(Ogre::String filename, Ogre::String password = "42-1337")
+	static void load(Ogre::String filename)
 	{
 		mRecords.clear();
 		{
