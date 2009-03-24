@@ -156,10 +156,10 @@ class PythonObjectConnector
 
 		    //Python stuff is best done in python. ;-)
 		    py::exec(
-				    "import pickle\n\n"
+				    "import cPickle\n\n"
 
 				    "def dump(obj):\n"
-				    " 	return pickle.dumps(obj.locals)\n",
+				    " 	return cPickle.dumps(obj.locals)\n",
 				    main, main
 			    );
 		    Ogre::String dump = py::extract<Ogre::String>(main["dump"](this));
@@ -181,10 +181,10 @@ class PythonObjectConnector
 
 		    //Python stuff is best done in python. ;-)
 		    py::exec(
-				    "import pickle\n\n"
+				    "import cPickle\n\n"
 
 				    "def load(str):\n"
-				    " 	return pickle.loads(str)\n",
+				    " 	return cPickle.loads(str)\n",
 				    main, main
 			    );
 		    mLocals = main["load"](str);

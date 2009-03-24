@@ -1,3 +1,11 @@
++-------------------------+
+|   NGF Class Templates   |
++-------------------------+
+
+For quick copy pasting if you're lazy like me. ;-) Just use your text
+editor's 'replace' feature to replace '<replacethis>' with your class's
+name.
+
 -------------------------------------------------------------------------------------------------------------------------------
 GameObject Header File
 -------------------------------------------------------------------------------------------------------------------------------
@@ -42,27 +50,22 @@ GameObject Source File
 <replacethis>::<replacethis>(Ogre::Vector3 pos, Ogre::Quaternion rot, NGF::ID id, NGF::PropertyList properties, String name) : NGF::GameObject(pos, rot, id , properties, name)
 {
 }
-
 //-------------------------------------------------------------------------------
 <replacethis>::~<replacethis>()
 {
 }
-
 //-------------------------------------------------------------------------------
 void <replacethis>::unpausedTick(const Ogre::FrameEvent &evt)
 {
 }
-
 //-------------------------------------------------------------------------------
 void <replacethis>::pausedTick(const Ogre::FrameEvent &evt)
 {
 }
-
 //-------------------------------------------------------------------------------
 void <replacethis>::receiveMessage(NGF::Message msg)
 {
 }
-
 //-------------------------------------------------------------------------------
 void <replacethis>::collide(GameObject *other, OgreBulletCollisions::Object *otherPhysicsObject, btManifoldPoint &contact)
 {
@@ -116,12 +119,10 @@ World Source File
 void <replacethis>::init()
 {
 }
-
 //-------------------------------------------------------------------------------
 void <replacethis>::tick(const Ogre::FrameEvent &evt)
 {
 }
-
 //-------------------------------------------------------------------------------
 void <replacethis>::stop()
 {

@@ -1,0 +1,9 @@
++--------------+
+|   NGF Todo   |
++--------------+
+
+Stuff I hope to complete soon.
+
+- Seperate physics integration code from core NGF code using the 'plugin'
+  idea, similar to the other 'plugins'.
+
