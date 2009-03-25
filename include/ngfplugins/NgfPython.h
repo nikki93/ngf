@@ -227,8 +227,8 @@ class PythonObjectConnector
  *  		  parsing your '*_DECL' macros.
  *
  *  		  The macros use enums and switches to handle the messages. Gperf takes
- *  		  the string name, and return a struct containing the enum value (it
- *  		  needs a gperf config file for help, and 'ngfpydef' helps make that).
+ *  		  the string name, and returns a struct containing the enum value (it
+ *  		  needs a gperf config file and 'ngfpydef' helps make that).
  * =====================================================================================
  */
 
