@@ -225,36 +225,68 @@ class PythonObjectConnector
  *  		  map C++ member variables to Python attributes. Uses gperf for hashing,
  *  		  the tool 'ngfpydef' eases writing gperf configuration files by just
  *  		  parsing your '*_DECL' macros.
+ *
+ *  		  The macros use enums and switches to handle the messages. Gperf takes
+ *  		  the string name, and return a struct containing the enum value (it
+ *  		  needs a gperf config file for help, and 'ngfpydef' helps make that).
  * =====================================================================================
  */
 
 //Macros for beginning or ending method or property declarations or implementations.
-#define NGF_PY_BEGIN_DECL(classnm) py::object pythonMethod(Ogre::String name, py::object args); enum
-#define NGF_PY_END_DECL ;
-#define NGF_PY_BEGIN_IMPL(classnm) py::object classnm ::pythonMethod(Ogre::String NGF_name, py::object args) { \
-    const PythonMethod *NGF_res = PythonHash_ ## classnm ::Lookup(NGF_name.c_str(), NGF_name.length()); \
-    if ( NGF_res ) switch ( NGF_res->code ) {
-#define NGF_PY_END_IMPL } return py::object(); }
+//These macros make the enums with a 'pm_' prefix for methods, 'pget_' prefix for
+//get-methods, and 'pset_' prefix for set methods.
+#define NGF_PY_BEGIN_DECL(classnm)                                                             \
+	py::object pythonMethod(Ogre::String name, py::object args);                           \
+	enum
+#define NGF_PY_METHOD_DECL(pyname)                                                             \
+	pm_##pyname,                                                                         
+#define NGF_PY_PROPERTY_DECL(pyname)                                                           \
+	pget_##pyname,                                                                         \
+	pset_##pyname,
+#define NGF_PY_END_DECL                                                                        \
+	;
 
-//Macros for declaring or implementing methods or properties.
-#define NGF_PY_METHOD_DECL(pyname) pm_ ## pyname,
-#define NGF_PY_PROPERTY_DECL(pyname) pget_ ## pyname, pset_ ## pyname,
-#define NGF_PY_METHOD_IMPL(pyname) case (pm_ ## pyname):
-#define NGF_PY_PROPERTY_IMPL(pyname,cname,ctype) case (pget_ ## pyname): { return py::object(cname); } \
-    case (pset_ ## pyname): { cname = py::extract<ctype>(args[0]); return py::object(); }
+//Macros for declaring or implementing methods or properties. They rely on the enums.
+//'NGF_PY_PROPERTY_IMPL' saves you from having to mess with the get and set methods,
+//properties act like normal variables.
+#define NGF_PY_BEGIN_IMPL(classnm)                                                             \
+	py::object classnm::pythonMethod(Ogre::String NGF_name, py::object args)               \
+	{                                                                                      \
+	    const PythonMethod *NGF_res = PythonHash_##classnm                                 \
+		::Lookup(NGF_name.c_str(), NGF_name.length());                                 \
+	    if (NGF_res)                                                                       \
+	    {                                                                                  \
+		switch (NGF_res->code)                                                         \
+		{
+#define NGF_PY_METHOD_IMPL(pyname)                                                             \
+		    case (pm_##pyname):
+#define NGF_PY_PROPERTY_IMPL(pyname,cname,ctype)                                               \
+		    case (pget_##pyname):                                                      \
+			return py::object(cname);                                              \
+		    case (pset_##pyname):                                                      \
+		    {                                                                          \
+			cname = py::extract<ctype>(args[0]);                                   \
+			return py::object();                                                   \
+		    }
+#define NGF_PY_END_IMPL                                                                        \
+		}                                                                              \
+	    }                                                                                  \
+	    return py::object();                                                               \
+	}
 
 //Used by 'ngfpydef', you don't usually have to use these yourself.
-#define NGF_PY_CLASS_GPERF(classnm) PythonHash_ ## classnm 
-#define NGF_PY_METHOD_GPERF(classnm,pyname) classnm :: pm_ ## pyname
-#define NGF_PY_GET_GPERF(classnm,pyname) classnm :: pget_ ## pyname
-#define NGF_PY_SET_GPERF(classnm,pyname) classnm :: pset_ ## pyname
+#define NGF_PY_CLASS_GPERF(classnm) PythonHash_##classnm 
+#define NGF_PY_METHOD_GPERF(classnm,pyname) classnm :: pm_##pyname
+#define NGF_PY_GET_GPERF(classnm,pyname) classnm :: pget_##pyname
+#define NGF_PY_SET_GPERF(classnm,pyname) classnm :: pset_##pyname
 
-//This is for use with the NGF::Serialiser library.
-#define NGF_PY_SERIALISE_LOCALS()                                                              \
-	    if (save) {                                                                        \
-		out.addProperty("NGF_PY_LOCALS" , mConnector->dumpLocals(), "");               \
-	    } else  {                                                                          \
-		mConnector->loadLocals(in.getValue("NGF_PY_LOCALS", 0, "'(dp0\n.'"));          \
-	    }
+//This is for use with the NGF::Serialiser library, so you can serialise the locals
+//stored in the PythonObjectConnector.
+#define NGF_PY_SERIALISE_LOCALS()                                                          \
+	if (save) {                                                                        \
+	    out.addProperty("NGF_PY_LOCALS" , mConnector->dumpLocals(), "");               \
+	} else  {                                                                          \
+	    mConnector->loadLocals(in.getValue("NGF_PY_LOCALS", 0, "'(dp0\n.'"));          \
+	}
 
 #endif //#ifndef __NGF_PYTHON_H__
