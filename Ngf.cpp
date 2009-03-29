@@ -32,7 +32,7 @@ namespace NGF {
 	    PropertyList::iterator itr = find(key);
 	    if (itr != end())
 	    {
-		    Ogre::StringVector values = (*itr).second;
+                    std::vector<Ogre::String> values = (*itr).second;
 
 		    if (index < values.size())
 		    {
@@ -46,9 +46,39 @@ namespace NGF {
     PropertyList & PropertyList::addProperty(Ogre::String key, Ogre::String values, 
 		    Ogre::String delims)
     {
-	    std::vector<Ogre::String> vals = Ogre::StringUtil::split(values, delims);
-	    insert(PropertyPair(key, vals));
-	    return *this;
+            std::vector<Ogre::String> vals;
+            vals.reserve(10);
+
+            unsigned int numSplits = 0;
+            size_t start = 0, pos;
+            do 
+            {
+                    pos = values.find_first_of(delims, start);
+                    if (pos == start)
+                    {
+                            //Do nothing
+                            start = pos + 1;
+                    }
+                    else if (pos == Ogre::String::npos)
+                    {
+                            //Copy the rest of the string
+                            vals.push_back(values.substr(start));
+                            break;
+                    }
+                    else
+                    {
+                            //Copy up to delimiter
+                            vals.push_back(values.substr(start, pos - start));
+                            start = pos + 1;
+                    }
+                    //Parse up to next real data
+                    start = values.find_first_not_of(delims, start);
+                    ++numSplits;
+
+            } while (pos != Ogre::String::npos);
+
+            insert(PropertyPair(key, vals));
+            return *this;
     }
     //----------------------------------------------------------------------------------
     PropertyList PropertyList::create(Ogre::String key, Ogre::String values, Ogre::String delims)
@@ -136,39 +166,11 @@ namespace NGF {
 	    assert(ms_Singleton); return *ms_Singleton;
     }
     //----------------------------------------------------------------------------------
-#ifdef NGF_USE_OGREODE
-    GameObjectManager::GameObjectManager(OgreOde::World *world)
-	    : mCurrentIDNo(0),
-	    mObjectFactory(new GameObjectFactory())
-    {
-	    world->setCollisionListener(this);
-    }
-#else
-#ifdef NGF_USE_OGREBULLET
-    GameObjectManager::GameObjectManager(OgreBulletCollisions::CollisionsWorld *world) 
-	    : mPhysicsWorld(world),
-	    mCurrentIDNo(0)
-    {
-	    gContactAddedCallback = GameObjectManager::_contactAddedCallback;
-	    //gContactDestroyedCallback = G_NGF_CONTACTDESTROYED;
-    }
-#else
-#ifdef NGF_USE_BULLET
-    GameObjectManager::GameObjectManager()
-	    : mCurrentIDNo(0),
-	    mObjectFactory(new GameObjectFactory())
-    {
-	    gContactAddedCallback = GameObjectManager::_contactAddedCallback;
-    }
-#else
     GameObjectManager::GameObjectManager()
 	    : mCurrentIDNo(0),
 	    mObjectFactory(new GameObjectFactory())
     {
     }
-#endif
-#endif
-#endif
     //----------------------------------------------------------------------------------
     void GameObjectManager::tick(bool paused, const Ogre::FrameEvent & evt)
     {
@@ -279,181 +281,6 @@ namespace NGF {
 
 	    return findObj;
     }
-    //----------------------------------------------------------------------------------
-#ifdef NGF_USE_OGREODE
-    void GameObjectManager::registerForCollision(GameObject *object, OgreOde::Geometry *geom)
-    {
-	    geom->setUserObject(object);
-	    geom->setUserData(1021993);
-    }
-    //----------------------------------------------------------------------------------
-    GameObject* GameObjectManager::getObjectFromGeometry(OgreOde::Geometry *geom)
-    {
-	    if (geom->getUserData() == 1021993)
-	    {
-		    return (GameObject*)(geom->getUserObject());
-	    }
-	    return 0;
-    }
-    //----------------------------------------------------------------------------------
-    bool GameObjectManager::collision(OgreOde::Contact *contact)
-    {
-	    OgreOde::Geometry *geom1 = contact->getFirstGeometry();
-	    OgreOde::Geometry *geom2 = contact->getSecondGeometry();
-	    GameObject *obj1 = getObjectFromGeometry(geom1);
-	    GameObject *obj2 = getObjectFromGeometry(geom2);
-
-	    if (obj1 && obj2)
-	    {
-		    return obj1->collide(obj2, geom2, contact) && obj2->collide(obj1, geom1, contact);
-	    }
-	    else if (obj1)
-	    {
-		    return obj1->collide(0, geom2, contact);
-	    }
-	    else if (obj2)
-	    {
-		    return obj2->collide(0, geom1, contact);
-	    }
-
-	    return true;
-    }
-#endif
-    //----------------------------------------------------------------------------------
-#ifdef NGF_USE_OGREBULLET
-    void GameObjectManager::registerForCollision(GameObject *object, OgreBulletCollisions::Object *physic)
-    {
-	    physic->setUserObject(object);
-
-	    btCollisionObject *bullObj = physic->getBulletObject();
-	    bullObj->setCollisionFlags(bullObj->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
-    }
-    //----------------------------------------------------------------------------------
-    GameObject* GameObjectManager::getObjectFromPhysicsObject(OgreBulletCollisions::Object *physic)
-    {
-	    Ogre::UserDefinedObject *usr = physic->getUserObject();
-
-	    if (!usr)
-		    return 0;
-
-	    if (usr->getTypeID() == 1021993)
-	    {
-		    return dynamic_cast<GameObject*>(usr);
-	    }
-	    return 0;
-    }
-    //----------------------------------------------------------------------------------
-    bool GameObjectManager::_contactAdded(btManifoldPoint& cp, const btCollisionObject* colObj0, 
-		    int partId0, int index0, const btCollisionObject* colObj1, int partId1, int index1)
-    {
-	    //Get the OgreBullet objects.
-	    btCollisionObject *bull1 = const_cast<btCollisionObject *>(colObj0);
-	    btCollisionObject *bull2 = const_cast<btCollisionObject *>(colObj1);
-	    OgreBulletCollisions::Object *phy1 = mPhysicsWorld->findObject(bull1);
-	    OgreBulletCollisions::Object *phy2 = mPhysicsWorld->findObject(bull2);
-
-	    if(!(phy1 && phy2))
-		    return true;
-
-	    //Get the NGF GameObjects, and call the relevant methods.
-	    GameObject *obj1 = getObjectFromPhysicsObject(phy1);
-	    GameObject *obj2 = getObjectFromPhysicsObject(phy2);
-
-	    if (obj1 && obj2)
-	    {
-		    obj1->collide(obj2, phy2, cp);
-		    obj2->collide(obj1, phy1, cp);
-	    }
-	    else if (obj1)
-	    {
-		    obj1->collide(0, phy2, cp);
-	    }
-	    else if (obj2)
-	    {
-		    obj2->collide(0, phy1, cp);
-	    }
-
-	    return true;
-    }
-    //----------------------------------------------------------------------------------
-    bool GameObjectManager::_contactDestroyed(btManifoldPoint& cp, void* body0, void* body1)
-    {
-	    return true;
-    }
-    //----------------------------------------------------------------------------------
-    bool GameObjectManager::_contactAddedCallback(btManifoldPoint& cp,const btCollisionObject* colObj0,
-		    int partId0,int index0,const btCollisionObject* colObj1,int partId1,int index1)
-    {
-	    return GameObjectManager::getSingletonPtr()->_contactAdded(cp, colObj0, partId0, index0, colObj1, partId1, index1);
-    }
-    //----------------------------------------------------------------------------------
-    bool GameObjectManager::_contactDestroyedCallback(btManifoldPoint& cp,void* body0,void* body1)
-    {
-	    return GameObjectManager::getSingletonPtr()->_contactDestroyed(cp, body0, body1);
-    }
-#endif
-    //----------------------------------------------------------------------------------
-#ifdef NGF_USE_BULLET
-    void GameObjectManager::registerForCollision(GameObject *object, btCollisionObject *physic)
-    {
-	    physic->setUserPointer(object);
-	    physic->setCollisionFlags(physic->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
-    }
-    //----------------------------------------------------------------------------------
-    GameObject* GameObjectManager::getObjectFromPhysicsObject(btCollisionObject *physic)
-    {
-	    void *usr = physic->getUserPointer();
-
-	    if (!usr)
-		    return 0;
-
-	    return (GameObject*) usr;
-    }
-    //----------------------------------------------------------------------------------
-    bool GameObjectManager::_contactAdded(btManifoldPoint& cp, const btCollisionObject* colObj0, 
-		    int partId0, int index0, const btCollisionObject* colObj1, int partId1, int index1)
-    {
-	    //Get the OgreBullet objects.
-	    btCollisionObject *phy1 = const_cast<btCollisionObject *>(colObj0);
-	    btCollisionObject *phy2 = const_cast<btCollisionObject *>(colObj1);
-
-	    //Get the NGF GameObjects, and call the relevant methods.
-	    GameObject *obj1 = getObjectFromPhysicsObject(phy1);
-	    GameObject *obj2 = getObjectFromPhysicsObject(phy2);
-
-	    if (obj1 && obj2)
-	    {
-		    obj1->collide(obj2, phy2, cp);
-		    obj2->collide(obj1, phy1, cp);
-	    }
-	    else if (obj1)
-	    {
-		    obj1->collide(0, phy2, cp);
-	    }
-	    else if (obj2)
-	    {
-		    obj2->collide(0, phy1, cp);
-	    }
-
-	    return true;
-    }
-    //----------------------------------------------------------------------------------
-    bool GameObjectManager::_contactDestroyed(btManifoldPoint& cp, void* body0, void* body1)
-    {
-	    return true;
-    }
-    //----------------------------------------------------------------------------------
-    bool GameObjectManager::_contactAddedCallback(btManifoldPoint& cp,const btCollisionObject* colObj0,
-		    int partId0,int index0,const btCollisionObject* colObj1,int partId1,int index1)
-    {
-	    return GameObjectManager::getSingletonPtr()->_contactAdded(cp, colObj0, partId0, index0, colObj1, partId1, index1);
-    }
-    //----------------------------------------------------------------------------------
-    bool GameObjectManager::_contactDestroyedCallback(btManifoldPoint& cp,void* body0,void* body1)
-    {
-	    return GameObjectManager::getSingletonPtr()->_contactDestroyed(cp, body0, body1);
-    }
-#endif
 
 /*
  * =====================================================================================
@@ -666,7 +493,7 @@ namespace NGF {
 	    }
     }
     //----------------------------------------------------------------------------------
-    Ogre::StringVector Loading::Loader::getLevels()
+    std::vector<Ogre::String> Loading::Loader::getLevels()
     {
 	    return mScriptLoader->getScriptsOfType("ngflevel");
     }

@@ -7,7 +7,6 @@
  *
  *        Version:  1.0
  *        Created:  02/27/2009 11:40:53 PM
- *       Revision:  none
  *
  *         Author:  Nikhilesh (nikki)
  *
@@ -25,10 +24,10 @@
 
 namespace py = boost::python;
 
-namespace NGF {
+namespace NGF { namespace Python {
 
 class PythonObjectConnector;
-//For easy Python-connectivity.
+//boost.python plays well with boost.shared_ptr.
 typedef boost::shared_ptr<PythonObjectConnector> PythonObjectConnectorPtr;
 
 /*
@@ -215,6 +214,8 @@ class PythonObjectConnector
 	    { return mObj->getFlags(); }
 }; 
 
+} //namespace Python
+
 } //namespace NGF
 
 /*
@@ -234,44 +235,44 @@ class PythonObjectConnector
 
 //Macros for beginning or ending method or property declarations or implementations.
 //These macros make the enums with a 'pm_' prefix for methods, 'pget_' prefix for
-//get-methods, and 'pset_' prefix for set methods.
-#define NGF_PY_BEGIN_DECL(classnm)                                                             \
-	py::object pythonMethod(Ogre::String name, py::object args);                           \
+//get-methods, and 'pset_' prefix for set methods. Braces are added by the user.
+#define NGF_PY_BEGIN_DECL(classnm)                                                         \
+	py::object pythonMethod(Ogre::String name, py::object args);                       \
 	enum
-#define NGF_PY_METHOD_DECL(pyname)                                                             \
-	pm_##pyname,                                                                         
-#define NGF_PY_PROPERTY_DECL(pyname)                                                           \
-	pget_##pyname,                                                                         \
+#define NGF_PY_METHOD_DECL(pyname)                                                         \
+	pm_##pyname,                                                               
+#define NGF_PY_PROPERTY_DECL(pyname)                                                       \
+	pget_##pyname,                                                                     \
 	pset_##pyname,
-#define NGF_PY_END_DECL                                                                        \
+#define NGF_PY_END_DECL                                                                    \
 	;
 
 //Macros for declaring or implementing methods or properties. They rely on the enums.
 //'NGF_PY_PROPERTY_IMPL' saves you from having to mess with the get and set methods,
 //properties act like normal variables.
-#define NGF_PY_BEGIN_IMPL(classnm)                                                             \
-	py::object classnm::pythonMethod(Ogre::String NGF_name, py::object args)               \
-	{                                                                                      \
-	    const PythonMethod *NGF_res = PythonHash_##classnm                                 \
-		::Lookup(NGF_name.c_str(), NGF_name.length());                                 \
-	    if (NGF_res)                                                                       \
-	    {                                                                                  \
-		switch (NGF_res->code)                                                         \
+#define NGF_PY_BEGIN_IMPL(classnm)                                                         \
+	py::object classnm::pythonMethod(Ogre::String NGF_name, py::object args)           \
+	{                                                                                  \
+	    const PythonMethod *NGF_res = PythonHash_##classnm                             \
+		::Lookup(NGF_name.c_str(), NGF_name.length());                             \
+	    if (NGF_res)                                                                   \
+	    {                                                                              \
+		switch (NGF_res->code)                                                     \
 		{
-#define NGF_PY_METHOD_IMPL(pyname)                                                             \
+#define NGF_PY_METHOD_IMPL(pyname)                                                         \
 		    case (pm_##pyname):
-#define NGF_PY_PROPERTY_IMPL(pyname,cname,ctype)                                               \
-		    case (pget_##pyname):                                                      \
-			return py::object(cname);                                              \
-		    case (pset_##pyname):                                                      \
-		    {                                                                          \
-			cname = py::extract<ctype>(args[0]);                                   \
-			return py::object();                                                   \
+#define NGF_PY_PROPERTY_IMPL(pyname,cname,ctype)                                           \
+		    case (pget_##pyname):                                                  \
+			return py::object(cname);                                          \
+		    case (pset_##pyname):                                                  \
+		    {                                                                      \
+			cname = py::extract<ctype>(args[0]);                               \
+			return py::object();                                               \
 		    }
-#define NGF_PY_END_IMPL                                                                        \
-		}                                                                              \
-	    }                                                                                  \
-	    return py::object();                                                               \
+#define NGF_PY_END_IMPL                                                                    \
+		}                                                                          \
+	    }                                                                              \
+	    return py::object();                                                           \
 	}
 
 //Used by 'ngfpydef', you don't usually have to use these yourself.

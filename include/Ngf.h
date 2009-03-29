@@ -13,13 +13,6 @@
  * =====================================================================================
  */
 
-//----------------------------------------------------------------------------------
-//Define one of the following, for the respective physics features.
-//#define NGF_USE_OGREODE
-//#define NGF_USE_OGREBULLET
-#define NGF_USE_BULLET
-//----------------------------------------------------------------------------------
-
 #ifndef _NGF_H_
 #define _NGF_H_
 
@@ -35,22 +28,6 @@
 #include "OgreResourceGroupManager.h"
 #include "OgreUserDefinedObject.h"
 #include "OgreColourValue.h"
-
-#ifdef NGF_USE_OGREBULLET
-#define _PRECOMP
-#include "OgreBulletCollisions.h"
-#include "OgreBulletDynamics.h"
-#endif
-
-#ifdef NGF_USE_OGREODE
-#include "OgreOde_Core.h"
-#endif
-
-#ifdef NGF_USE_BULLET
-#include "BulletCollision/CollisionDispatch/btCollisionObject.h"
-#include "BulletCollision/CollisionDispatch/btManifoldResult.h"
-#include "BulletCollision/NarrowPhaseCollision/btManifoldPoint.h"
-#endif
 
 #include "boost/any.hpp"
 
@@ -192,37 +169,6 @@ public:
 	//Called when a message is received.
 	virtual MessageReply receiveMessage(Message msg) { }
 
-#ifdef NGF_USE_OGREODE
-	//Called on collision with a physics object. If you are using OgreOde, define
-	//NGF_USE_OGREODE before including NGF, and register the GameObject to get 
-	//this functionality.
-	//
-	//other: The GameObject collided with.
-	//otherGeom: The OgreOde::Geometry collided with.
-	//contact: The contect joint.
-	virtual bool collide(GameObject *other, OgreOde::Geometry *otherGeom, OgreOde::Contact *contact) { return true; }
-#endif
-#ifdef NGF_USE_OGREBULLET
-	//Called on collision with a physics object. If you are using OgreBullet, define
-	//NGF_USE_OGREBULLET before including NGF, and register the GameObject to get 
-	//this functionality.
-	//
-	//other: The GameObject collided with.
-	//otherPhysicsObject: The OgreBulletCollisions::Object collided with.
-	//contact: The mainfold contact point.
-	virtual void collide(GameObject *other, OgreBulletCollisions::Object *otherPhysicsObject, btManifoldPoint &contact) { }
-#endif
-#ifdef NGF_USE_BULLET
-	//Called on collision with a physics object. If you are using (just) Bullet, define
-	//NGF_USE_BULLET before including NGF, and register the GameObject to get 
-	//this functionality.
-	//
-	//other: The GameObject collided with.
-	//otherPhysicsObject: The btCollisionObject collided with.
-	//contact: The mainfold contact point.
-	virtual void collide(GameObject *other, btCollisionObject *otherPhysicsObject, btManifoldPoint &contact) { }
-#endif
-
 	//Called on destruction (for scripted objects, as they are GCed).
 	virtual void destroy(void) { }
 
@@ -250,8 +196,8 @@ public:
 	Ogre::String getFlags() const { return mFlags; }
 
 	//------ Ogre UserDefinedObject stuff ------
+        
 	long getTypeID() const { return 1021993; }
-
 	const Ogre::String& getTypeName(void) const { return mType; }
 };
 
@@ -302,12 +248,7 @@ public:
  * =====================================================================================
  */
 
-class GameObjectManager
-#ifdef NGF_USE_OGREODE
-	: public OgreOde::CollisionListener , public Ogre::Singleton<NGF::GameObjectManager>
-#else
-	: public Ogre::Singleton<NGF::GameObjectManager>
-#endif
+class GameObjectManager : public Ogre::Singleton<NGF::GameObjectManager>
 {
 protected:
 	std::map<ID,GameObject*> mGameObjectMap;
@@ -318,25 +259,13 @@ protected:
 
 	int mCurrentIDNo;
 
-#ifdef NGF_USE_OGREBULLET
-	OgreBulletCollisions::CollisionsWorld *mPhysicsWorld;
-#endif
-
 public:
 
 	typedef fastdelegate::FastDelegate1<GameObject*> ForEachFunction;
 
 	//------ Constructor/Destructor ---------------------------
 	
-#ifdef NGF_USE_OGREODE
-	GameObjectManager(OgreOde::World *world);
-#else
-#ifdef NGF_USE_OGREBULLET
-	GameObjectManager(OgreBulletCollisions::CollisionsWorld *world);
-#else
 	GameObjectManager();
-#endif
-#endif
 
 	~GameObjectManager() { destroyAll(); delete mObjectFactory; }
 
@@ -402,64 +331,6 @@ public:
 	//NGF_SEND_REPLY(reply) in a GameObject::receiveMessage() function.
 	template<class ReturnType>
 	ReturnType sendMessageWithReply(GameObject *obj, Message msg);
-
-	//------ Collision event functions ------------------------
-
-#ifdef NGF_USE_OGREODE
-	//Tell the GameObjectManager about the relation between a GameObject
-	//and an OgreOde::Geometry.
-	void registerForCollision(GameObject *object, OgreOde::Geometry *geom);
-
-	//Get the GameObject associated with the specified OgreOde::Geometry.
-	GameObject* getObjectFromGeometry(OgreOde::Geometry *geom);
-
-	//------ OgreOde collision callback (internal stuff) ------
-
-	//OgreOde collision callback, don't call this function yourself.
-	bool collision(OgreOde::Contact *contact);
-#endif
-#ifdef NGF_USE_OGREBULLET
-	//Tell the GameObjectManager about the relation between a GameObject
-	//and an OgreBulletCollisions::Object.
-	void registerForCollision(GameObject *object, OgreBulletCollisions::Object *physic);
-
-	//Get the GameObject associated with the specified OgreBulletCollisions::Object.
-	GameObject* getObjectFromPhysicsObject(OgreBulletCollisions::Object *physic);
-
-	//------ OgreBullet collision callbacks (internal stuff) --
-	
-	//The collision callbacks from Bullet.
-	bool _contactAdded(btManifoldPoint& cp, const btCollisionObject* colObj0, int partId0, 
-			int index0, const btCollisionObject* colObj1, int partId1, int index1);
-	bool _contactDestroyed(btManifoldPoint& cp, void* body0, void* body1);
-
-	//The actual collision callbacks. Bullet doesn't accept non-static member functions 
-	//as callbacks, so we need to do this.
-	static bool _contactAddedCallback(btManifoldPoint& cp,const btCollisionObject* colObj0, 
-			int partId0,int index0,const btCollisionObject* colObj1,int partId1,int index1);
-	static bool _contactDestroyedCallback(btManifoldPoint& cp,void* body0,void* body1);
-#endif
-#ifdef NGF_USE_BULLET
-	//Tell the GameObjectManager about the relation between a GameObject
-	//and an OgreBulletCollisions::Object.
-	void registerForCollision(GameObject *object, btCollisionObject *physic);
-
-	//Get the GameObject associated with the specified OgreBulletCollisions::Object.
-	GameObject* getObjectFromPhysicsObject(btCollisionObject *physic);
-
-	//------ OgreBullet collision callbacks (internal stuff) --
-	
-	//The collision callbacks from Bullet.
-	bool _contactAdded(btManifoldPoint& cp, const btCollisionObject* colObj0, int partId0, 
-			int index0, const btCollisionObject* colObj1, int partId1, int index1);
-	bool _contactDestroyed(btManifoldPoint& cp, void* body0, void* body1);
-
-	//The actual collision callbacks. Bullet doesn't accept non-static member functions 
-	//as callbacks, so we need to do this.
-	static bool _contactAddedCallback(btManifoldPoint& cp,const btCollisionObject* colObj0, 
-			int partId0,int index0,const btCollisionObject* colObj1,int partId1,int index1);
-	static bool _contactDestroyedCallback(btManifoldPoint& cp,void* body0,void* body1);
-#endif
 
 };
 
@@ -571,7 +442,7 @@ protected:
 public:
 	//Create the loader. Give it a pointer to the helper function, or NULL (0) if you want it to use the 
 	//GameObjectFactory (through GameObjectManager::createObject(<string>, ...)).
-	Loader(LoaderHelperFunction help);
+	Loader(LoaderHelperFunction help = 0);
 
 	~Loader();
 
@@ -586,7 +457,7 @@ public:
 
 	//Returns a vector containing the level names of all the levels parsed. Returns an empty vector if no levels
 	//were found.
-	Ogre::StringVector getLevels();
+	std::vector<Ogre::String> getLevels();
 };
 
 } //namespace Loading

@@ -16,10 +16,10 @@
 #include "ngfplugins/NgfPython.h"
 #include <boost/python/stl_iterator.hpp>
 
-template<> NGF::PythonManager* Ogre::Singleton<NGF::PythonManager>::ms_Singleton = 0;
-NGF::PythonManager::PrintFunc NGF::PythonManager::mPrinter = 0;
+template<> NGF::Python::PythonManager* Ogre::Singleton<NGF::Python::PythonManager>::ms_Singleton = 0;
+NGF::Python::PythonManager::PrintFunc NGF::Python::PythonManager::mPrinter = 0;
 
-namespace NGF {
+namespace NGF { namespace Python {
 
 /*
  * =============================================================================================
@@ -300,5 +300,7 @@ namespace NGF {
 	    PythonGameObject *PythonObject = dynamic_cast<PythonGameObject*>(obj);
 	    return PythonObject ? (PythonObject->getConnector()) : PythonObjectConnectorPtr();
     }
+
+} //namespace Python
 
 } //namespace NGF

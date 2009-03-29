@@ -2,8 +2,14 @@
 |   NGF Todo   |
 +--------------+
 
-Stuff I hope to complete soon.
+Not done
+--------
 
-- Seperate physics integration code from core NGF code using the 'plugin'
+- Add something to the Todo file.
+
+Done
+----
+
+x Seperate physics integration code from core NGF code using the 'plugin'
   idea, similar to the other 'plugins'.
 

@@ -7,7 +7,6 @@
  *
  *        Version:  1.0
  *        Created:  03/22/2009 09:47:54 AM
- *       Revision:  none
  *
  *         Author:  Nikhilesh (nikki)
  *
@@ -19,7 +18,6 @@
 
 #include <Ogre.h> //Change this to only include specific headers when done.
 #include <Ngf.h>
-
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
@@ -27,7 +25,7 @@
 
 #include <fstream>
 
-namespace NGF {
+namespace NGF { namespace Serialisation {
 
 /*
  * =====================================================================================
@@ -111,10 +109,11 @@ class Serialiser : public Ogre::Singleton<Serialiser>
 {
     protected:
 	static std::vector<GameObjectRecord> mRecords;
-	static int mSig[];
 
     public:
-	//Save the game. Automatically saves all GameObjects inheriting form 'SerialisableGameObject'.
+	//Save the game. Automatically saves all GameObjects inheriting form 'SerialisableGameObject'. Calls
+        //'serialise' on all GameObjects to allow them to save their position and rotation if and any other
+        //extra information.
 	static void save(Ogre::String filename)
 	{
 		mRecords.clear();
@@ -125,9 +124,9 @@ class Serialiser : public Ogre::Singleton<Serialiser>
 		oa << mRecords;
 	}
 
-	//Load the game. Creates GameObjects based on the type contained in the GameObjectRecord, and
-	//passes the object the relevant information through it's 'load' method. The GameObject also
-	//receives the PropertyList when it is created.
+	//Load the game. Creates GameObjects based on the type contained in the GameObjectRecord, restores
+        //the position and rotation saved by the GameObject, and also restores the GameObject's PropertyList.
+        //Additional information saved by the GameObject is also restored.
 	static void load(Ogre::String filename)
 	{
 		mRecords.clear();
@@ -143,10 +142,10 @@ class Serialiser : public Ogre::Singleton<Serialiser>
 
 			PropertyList info = rec.getInfo();
 
-			Ogre::Vector3 pos = Ogre::StringConverter::parseVector3(info.getValue("NGF_POSITION", 0, "0 0 0"));
-			//props.erase("NGF_POSITION");
-			Ogre::Quaternion rot = Ogre::StringConverter::parseQuaternion(info.getValue("NGF_ROTATION", 0, "1 0 0 0"));
-			//props.erase("NGF_ROTATION");
+			Ogre::Vector3 pos = 
+                            Ogre::StringConverter::parseVector3(info.getValue("NGF_POSITION", 0, "0 0 0"));
+			Ogre::Quaternion rot = 
+                            Ogre::StringConverter::parseQuaternion(info.getValue("NGF_ROTATION", 0, "1 0 0 0"));
 
 			SerialisableGameObject *obj = dynamic_cast<SerialisableGameObject*>
 				(GameObjectManager::getSingleton().createObject(rec.mType, pos, rot, rec.mProps, rec.mName));
@@ -175,7 +174,9 @@ class Serialiser : public Ogre::Singleton<Serialiser>
 
 std::vector<GameObjectRecord> Serialiser::mRecords = std::vector<GameObjectRecord>();
 
-}
+} //namespace Serialisation
+
+} //namespace NGF
 
 /*
  * =====================================================================================
@@ -189,7 +190,7 @@ std::vector<GameObjectRecord> Serialiser::mRecords = std::vector<GameObjectRecor
  */
 
 #define NGF_SERIALISE_BEGIN(classnm)                                                           \
-	NGF::GameObjectRecord serialise(bool save, NGF::PropertyList &in)                      \
+	NGF::Serialisation::GameObjectRecord serialise(bool save, NGF::PropertyList &in)       \
 	{                                                                                      \
 	    NGF::PropertyList out;                                                             \
 	    Ogre::String type = #classnm;
@@ -222,7 +223,7 @@ std::vector<GameObjectRecord> Serialiser::mRecords = std::vector<GameObjectRecor
 #define NGF_SERIALISE_ON_LOAD if(!save)
 
 #define NGF_SERIALISE_END                                                                      \
-	    return NGF::GameObjectRecord( type , out);                                         \
+	    return NGF::Serialisation::GameObjectRecord( type , out);                          \
 	}
 
 
