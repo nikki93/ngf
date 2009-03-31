@@ -6,7 +6,7 @@
  *    Description:  NGF-Python implementation
  *
  *        Version:  1.0
- *        Created:  15/03/2009 11:29:15 AM
+ *        Created:  03/15/2009 12:32:42 AM
  *
  *         Author:  Nikhilesh (nikki)
  *
@@ -58,6 +58,7 @@ namespace NGF { namespace Python {
 	    py::class_<PythonObjectConnector, PythonObjectConnectorPtr >("GameObjectConnector", py::no_init)
 		    .def_readwrite("locals", &PythonObjectConnector::mLocals)
 		    .def("method", &PythonObjectConnector::method)
+		    .def("getID", &PythonObjectConnector::getID)
 		    .def("getName", &PythonObjectConnector::getName)
 		    .def("addFlag", &PythonObjectConnector::addFlag)
 		    .def("hasFlag", &PythonObjectConnector::hasFlag)
@@ -87,7 +88,7 @@ namespace NGF { namespace Python {
 
 /*
  * =============================================================================================
- * NGF::PythonGameObject
+ * NGF::Python::PythonGameObject
  * =============================================================================================
  */
 
@@ -175,7 +176,7 @@ namespace NGF { namespace Python {
 
 /*
  * =============================================================================================
- * NGF::PythonManager
+ * NGF::Python::PythonManager
  * =============================================================================================
  */
 
@@ -299,6 +300,63 @@ namespace NGF { namespace Python {
 
 	    PythonGameObject *PythonObject = dynamic_cast<PythonGameObject*>(obj);
 	    return PythonObject ? (PythonObject->getConnector()) : PythonObjectConnectorPtr();
+    }
+
+/*
+ * =============================================================================================
+ * NGF::Python::PythonObjectConnector
+ * =============================================================================================
+ */
+
+    PythonObjectConnector::~PythonObjectConnector() 
+    {
+            //Clears the locals.
+            py::object main = PythonManager::getSingleton().getMainNamespace();
+            mLocals = py::eval("0", main, main);
+    }
+    //--------------------------------------------------------------------------------------
+    Ogre::String PythonObjectConnector::dumpLocals()
+    {
+            py::object &main = PythonManager::getSingleton().getMainNamespace();
+
+            //Python stuff is best done in python. ;-)
+            py::exec(
+                            "import cPickle\n\n"
+
+                            "def dump(obj):\n"
+                            " 	return cPickle.dumps(obj.locals)\n",
+                            main, main
+                    );
+            Ogre::String dump = py::extract<Ogre::String>(main["dump"](this));
+
+            //Clean up after ourselves!
+            py::exec(
+                            "del dump\n",
+                            main, main
+                    );
+
+            return dump;
+    }
+    //--------------------------------------------------------------------------------------
+    void PythonObjectConnector::loadLocals(Ogre::String str)
+    {
+            py::object &main = PythonManager::getSingleton().getMainNamespace();
+
+            //Python stuff is best done in python. ;-)
+            py::exec(
+                            "import cPickle\n\n"
+
+                            "def load(str):\n"
+                            " 	return cPickle.loads(str)\n",
+                            main, main
+                    );
+            mLocals = main["load"](str);
+
+            //Clean up after ourselves!
+            py::exec(
+                            "del load\n",
+                            main, main
+                    );
     }
 
 } //namespace Python
