@@ -231,4 +231,20 @@ class GameObjectRecord
                 }                                                                              \
             }                                                                                      
 
+//Serialises tasks in a TaskManagingGameObject.
+#define NGF_SERIALISE_TASKS()                                                                  \
+            NGF_SERIALISE_OGRE(Real, mCurrTime);                                               \
+            NGF_SERIALISE_OGRE(UnsignedInt, mTasksDone);                                       \
+                                                                                               \
+            /* Remove tasks that are already done. */                                          \
+            NGF_SERIALISE_ON_LOAD                                                              \
+            {                                                                                  \
+                unsigned int i = 0;                                                            \
+                for (TaskMap::iterator iter = mTasks.begin();                                  \
+                        iter != mTasks.end() && i < mTasksDone; ++i, ++iter)                   \
+                {                                                                              \
+                    mTasks.erase(iter);                                                        \
+                }                                                                              \
+            }
+
 #endif //#ifndef __NGF_SERIALISATION_H__

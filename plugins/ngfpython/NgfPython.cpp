@@ -106,59 +106,46 @@ namespace NGF { namespace Python {
     //--------------------------------------------------------------------------------------
     void PythonGameObject::setUpScript(Ogre::String script)
     {
-	    py::object main = PythonManager::getSingleton().getMainNamespace();
+            py::object main = PythonManager::getSingleton().getMainNamespace();
 
-	    //The script should /do/ something.
-	    if (script != "")
-	    {
-		    //The default events, in case the script doesn't override some.
-		    runString(
-				    "import Ngf\n\n"
+            //The default events, in case the script doesn't override some.
+            runString(
+                            "import Ngf\n\n"
 
-				    "def init(self):\n"
-				    " 	pass\n\n"
-				    "def create(self):\n"
-				    " 	pass\n\n"
-				    "def destroy(self):\n"
-				    " 	pass\n\n"
-				    "def utick(self, elapsed):\n"
-				    " 	pass\n\n"
-				    "def ptick(self, elapsed):\n"
-				    " 	pass\n\n"
-				    "def collide(self, other):\n"
-				    " 	pass\n\n"
-			     );
+                            "def init(self):\n"
+                            " 	pass\n\n"
+                            "def create(self):\n"
+                            " 	pass\n\n"
+                            "def destroy(self):\n"
+                            " 	pass\n\n"
+                            "def utick(self, elapsed):\n"
+                            " 	pass\n\n"
+                            "def ptick(self, elapsed):\n"
+                            " 	pass\n\n"
+                            "def collide(self, other):\n"
+                            " 	pass\n\n"
+                     );
 
-		    //Run the script.
-		    runString(script);
+            if (script != "") 
+                    runString(script);
 
-		    //Bind the events.
-		    mPyEvents["init"] = main["init"];
-		    mPyEvents["create"] = main["create"];
-		    mPyEvents["destroy"] = main["destroy"];
-		    mPyEvents["utick"] = main["utick"];
-		    mPyEvents["ptick"] = main["ptick"];
-		    mPyEvents["collide"] = main["collide"];
+            //Bind the events.
+            mPyEvents["init"] = main["init"];
+            mPyEvents["create"] = main["create"];
+            mPyEvents["destroy"] = main["destroy"];
+            mPyEvents["utick"] = main["utick"];
+            mPyEvents["ptick"] = main["ptick"];
+            mPyEvents["collide"] = main["collide"];
 
-		    //Clear the temporary function names.
-		    runString(
-				    "del create\n"
-				    "del destroy\n"
-				    "del utick\n"
-				    "del ptick\n"
-				    "del collide\n"
-			     );
-	    }
-	    else
-	    {
-		    //No events, bind some empty functions.
-		    mPyEvents["init"] = py::eval("lambda *args: None", main, main); 
-		    mPyEvents["create"] = mPyEvents["init"];
-		    mPyEvents["destroy"] = mPyEvents["init"];
-		    mPyEvents["utick"] = mPyEvents["init"];
-		    mPyEvents["ptick"] = mPyEvents["init"];
-		    mPyEvents["collide"] = mPyEvents["init"];
-	    }
+            //Clear the temporary function names.
+            runString(
+                            "del init\n"
+                            "del create\n"
+                            "del destroy\n"
+                            "del utick\n"
+                            "del ptick\n"
+                            "del collide\n"
+                     );
     }
     //--------------------------------------------------------------------------------------
     void PythonGameObject::runString(Ogre::String script)

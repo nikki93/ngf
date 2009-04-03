@@ -462,52 +462,6 @@ public:
 
 } //namespace Loading
 
-//------ Some useful utility stuff ----------------------------
-
-//InlineVector allows this:
-//
-//addNumbers(InlineVector<int>(3)(5)(10)); //Returns 18
-//
-//Copied from ajs' wonderful 'Navi' library. Thanks a lot, ajs! ;-)
-template <class T>
-class InlineVector : public std::vector<T>
-{
-public:
-	InlineVector() { }
-
-	explicit InlineVector(const T &firstArg) : std::vector<T>(1, firstArg) { }
-
-	InlineVector& operator()(const T &newArg)
-	{
-		this->push_back(newArg);
-		return *this;
-	}
-};
-
-class  Utility
-{
-public:
-	//Set number (or anything that defines operator < and >) in the specified range.
-	template<class Type>
-	static Type Clamp(Type number, Type rangeMin, Type rangeMax)
-	{
-		Type big = (number < rangeMax) ? number : rangeMax;
-		return (rangeMin > big) ? rangeMin : big;
-	}
-
-	//Create an Ogre::ColourValue from a 0 to 255 colour value.
-	static inline Ogre::ColourValue Colour(Ogre::Real r, Ogre::Real g, Ogre::Real b, Ogre::Real a = 255)
-	{
-		return Ogre::ColourValue(r / 255.0, g / 255.0, b / 255.0, a / 255.0);
-	}
-
-	//Calculate attenuation from distance. Kind of uses Blender's mechanism.
-	static Ogre::Vector4 CalculateAttenuation(Ogre::Real distance, Ogre::Real energy, Ogre::Real quad1, Ogre::Real quad2)
-	{
-		return Ogre::Vector4(distance * energy * 20, 1/energy, quad1/(energy * distance), quad2/(energy * distance * distance));
-	}
-};
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-
 //-+-+-+ End of the 'actual' header file, template function definitions follow +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-
