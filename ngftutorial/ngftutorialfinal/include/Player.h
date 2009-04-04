@@ -59,7 +59,7 @@ class Player : public NGF::GameObject
 	{
 	}
 
-	void receiveMessage(NGF::Message msg)
+        NGF::MessageReply receiveMessage(NGF::Message msg)
 	{
 	}
 };

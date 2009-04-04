@@ -47,7 +47,7 @@ class PythonGameObject : virtual public GameObject
     protected:
 	    PythonObjectConnectorPtr mConnector;
 
-	    py::object mPyEvents;
+	    py::object mPythonEvents;
 
     public:
 	    PythonGameObject();
@@ -85,7 +85,7 @@ class PythonManager : public Ogre::Singleton<PythonManager>
 
     protected:
 	    py::object mMainModule;
-	    py::object mMainNamespace;
+	    py::dict mMainNamespace;
 
 	    static PrintFunc mPrinter;
 
@@ -98,8 +98,8 @@ class PythonManager : public Ogre::Singleton<PythonManager>
 	    static PythonManager* getSingletonPtr(void);
 
 	    //Get the Python main module or namespace.
-	    py::object &getMainModule() { return mMainModule; }
-	    py::object &getMainNamespace() { return mMainNamespace; }
+	    inline py::object &getMainModule() { return mMainModule; }
+	    inline py::dict &getMainNamespace() { return mMainNamespace; }
 
 	    //--- Python binds, internal stuff -------------------------------------
 	    
@@ -205,30 +205,43 @@ class PythonObjectConnector
 //Macros for declaring or implementing methods or properties. They rely on the enums.
 //'NGF_PY_PROPERTY_IMPL' saves you from having to mess with the get and set methods,
 //properties act like normal variables.
-#define NGF_PY_BEGIN_IMPL(classnm)                                                         \
-	py::object classnm::pythonMethod(Ogre::String NGF_name, py::object args)           \
-	{                                                                                  \
-	    const PythonMethod *NGF_res = PythonHash_##classnm                             \
-		::Lookup(NGF_name.c_str(), NGF_name.length());                             \
-	    if (NGF_res)                                                                   \
-	    {                                                                              \
-		switch (NGF_res->code)                                                     \
+#define NGF_PY_BEGIN_IMPL(classnm)                                                             \
+	py::object classnm::pythonMethod(Ogre::String NGF_name, py::object args)               \
+	{                                                                                      \
+	    const PythonMethod *NGF_res = PythonHash_##classnm                                 \
+		::Lookup(NGF_name.c_str(), NGF_name.length());                                 \
+	    if (NGF_res)                                                                       \
+	    {                                                                                  \
+		switch (NGF_res->code)                                                         \
 		{
-#define NGF_PY_METHOD_IMPL(pyname)                                                         \
+#define NGF_PY_METHOD_IMPL(pyname)                                                             \
 		    case (pm_##pyname):
-#define NGF_PY_PROPERTY_IMPL(pyname,cname,ctype)                                           \
-		    case (pget_##pyname):                                                  \
-			return py::object(cname);                                          \
-		    case (pset_##pyname):                                                  \
-		    {                                                                      \
-			cname = py::extract<ctype>(args[0]);                               \
-			return py::object();                                               \
+#define NGF_PY_PROPERTY_IMPL(pyname,cname,ctype)                                               \
+		    case (pget_##pyname):                                                      \
+			return py::object(cname);                                              \
+		    case (pset_##pyname):                                                      \
+		    {                                                                          \
+			cname = py::extract<ctype>(args[0]);                                   \
+			return py::object();                                                   \
 		    }
-#define NGF_PY_END_IMPL                                                                    \
-		}                                                                          \
-	    }                                                                              \
-	    return py::object();                                                           \
+#define NGF_PY_END_IMPL                                                                        \
+		}                                                                              \
+	    }                                                                                  \
+	    return py::object();                                                               \
 	}
+
+//To save an event. If the event isn't defined, a 'do nothing' event is created. After
+//saving the event, it is removed from the main namespace, so the name can be reused.
+#define NGF_PY_SAVE_EVENT(evt)                                                                 \
+        mPythonEvents[#evt]                                                                    \
+                = NGF::Python::PythonManager::getSingleton().getMainNamespace()                \
+                        .setdefault(#evt, py::eval("lambda *args: None"));                     \
+        runString("del " #evt "\n")
+
+//To call a saved event. The event (funciton) receives a 'self' parameter, and whatever
+//other parameters are passed in.
+#define NGF_PY_CALL_EVENT(evt, ...)                                                            \
+        mPythonEvents[#evt](mConnector, ##__VA_ARGS__)
 
 //Used by 'ngfpydef', you don't usually have to use these yourself.
 #define NGF_PY_CLASS_GPERF(classnm) PythonHash_##classnm 

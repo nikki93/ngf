@@ -95,7 +95,7 @@ namespace NGF { namespace Python {
     PythonGameObject::PythonGameObject()
 	    : GameObject(Ogre::Vector3(), Ogre::Quaternion(), ID(), PropertyList(), ""),
 	      mConnector(new PythonObjectConnector(this)),
-	      mPyEvents(py::dict())
+	      mPythonEvents(py::dict())
     {
     }
     //--------------------------------------------------------------------------------------
@@ -109,6 +109,7 @@ namespace NGF { namespace Python {
             py::object main = PythonManager::getSingleton().getMainNamespace();
 
             //The default events, in case the script doesn't override some.
+            /*
             runString(
                             "import Ngf\n\n"
 
@@ -125,27 +126,18 @@ namespace NGF { namespace Python {
                             "def collide(self, other):\n"
                             " 	pass\n\n"
                      );
+                     */
 
             if (script != "") 
                     runString(script);
 
-            //Bind the events.
-            mPyEvents["init"] = main["init"];
-            mPyEvents["create"] = main["create"];
-            mPyEvents["destroy"] = main["destroy"];
-            mPyEvents["utick"] = main["utick"];
-            mPyEvents["ptick"] = main["ptick"];
-            mPyEvents["collide"] = main["collide"];
-
-            //Clear the temporary function names.
-            runString(
-                            "del init\n"
-                            "del create\n"
-                            "del destroy\n"
-                            "del utick\n"
-                            "del ptick\n"
-                            "del collide\n"
-                     );
+            //Store the events.
+            NGF_PY_SAVE_EVENT(init);
+            NGF_PY_SAVE_EVENT(create);
+            NGF_PY_SAVE_EVENT(destroy);
+            NGF_PY_SAVE_EVENT(utick);
+            NGF_PY_SAVE_EVENT(ptick);
+            NGF_PY_SAVE_EVENT(collide);
     }
     //--------------------------------------------------------------------------------------
     void PythonGameObject::runString(Ogre::String script)
@@ -175,7 +167,7 @@ namespace NGF { namespace Python {
 
 	    //Import 'main' and get the main namespace.
 	    mMainModule = py::import("__main__");
-	    mMainNamespace = mMainModule.attr("__dict__");
+	    mMainNamespace = py::extract<py::dict>(mMainModule.attr("__dict__"));
 
 	    //Set the printer.
 	    mPrinter = printer;
