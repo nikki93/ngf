@@ -30,28 +30,13 @@ namespace NGF { namespace Python {
     BOOST_PYTHON_MODULE(Ngf)
     {
 	    //Bind some non-class stuff.		
-
-	    //Raw-pointer version.
-	    /*
-	    py::def("createObject", &PythonManager::_createObject, 
-		    py::return_value_policy<py::reference_existing_object>());
-	    py::def("destroyObject", &PythonManager::_destroyObject);
-	    py::def("_print", &PythonManager::_print);
-
-	    PythonObjectConnectorPtr (*getObjectStr) (std::string) = &PythonManager::_getObject;
-	    PythonObjectConnectorPtr (*getObjectID) (int) = &PythonManager::_getObject;
-	    py::def("getObject", getObjectStr, py::return_value_policy<py::reference_existing_object>());
-	    py::def("getObject", getObjectID, py::return_value_policy<py::reference_existing_object>());
-	    */
-
-	    //Smart-pointer version.
 	    py::def("createObject", &PythonManager::_createObject);
 	    py::def("destroyObject", &PythonManager::_destroyObject);
 	    py::def("_print", &PythonManager::_print);
 
 	    PythonObjectConnectorPtr (*getObjectStr) (std::string) = &PythonManager::_getObject;
-	    PythonObjectConnectorPtr (*getObjectID) (int) = &PythonManager::_getObject;
 	    py::def("getObject", getObjectStr);
+	    PythonObjectConnectorPtr (*getObjectID) (int) = &PythonManager::_getObject;
 	    py::def("getObject", getObjectID);
 
 	    //Bind our NGF connector.
@@ -95,7 +80,7 @@ namespace NGF { namespace Python {
     PythonGameObject::PythonGameObject()
 	    : GameObject(Ogre::Vector3(), Ogre::Quaternion(), ID(), PropertyList(), ""),
 	      mConnector(new PythonObjectConnector(this)),
-	      mPythonEvents(py::dict())
+	      mPythonEvents()
     {
     }
     //--------------------------------------------------------------------------------------
@@ -104,30 +89,10 @@ namespace NGF { namespace Python {
 	    mConnector.reset();
     }
     //--------------------------------------------------------------------------------------
-    void PythonGameObject::setUpScript(Ogre::String script)
+    void PythonGameObject::setScript(Ogre::String script)
     {
-            py::object main = PythonManager::getSingleton().getMainNamespace();
-
-            //The default events, in case the script doesn't override some.
-            /*
-            runString(
-                            "import Ngf\n\n"
-
-                            "def init(self):\n"
-                            " 	pass\n\n"
-                            "def create(self):\n"
-                            " 	pass\n\n"
-                            "def destroy(self):\n"
-                            " 	pass\n\n"
-                            "def utick(self, elapsed):\n"
-                            " 	pass\n\n"
-                            "def ptick(self, elapsed):\n"
-                            " 	pass\n\n"
-                            "def collide(self, other):\n"
-                            " 	pass\n\n"
-                     );
-                     */
-
+            //Clear events, run script.
+            mPythonEvents.clear();
             if (script != "") 
                     runString(script);
 
@@ -257,12 +222,12 @@ namespace NGF { namespace Python {
     void PythonManager::_destroyObject(PythonObjectConnector *obj)
     {
 	    PythonGameObject *PythonObject = obj->getObject();
-	    Ogre::LogManager::getSingleton().logMessage("Before, ID: " + Ogre::StringConverter::toString(PythonObject->getID()));
 	    GameObjectManager::getSingleton().requestDestroy(PythonObject->getID());
     }
     //--------------------------------------------------------------------------------------
     PythonObjectConnectorPtr PythonManager::_getObject(std::string name)
     {
+            //Return NULL shared pointer (None in Python) if failed.
 	    GameObject *obj = GameObjectManager::getSingleton().getByName(name);
 	    if (!obj)
 		    return PythonObjectConnectorPtr();
@@ -273,6 +238,7 @@ namespace NGF { namespace Python {
     //--------------------------------------------------------------------------------------
     PythonObjectConnectorPtr PythonManager::_getObject(int ID)
     {
+            //Return NULL shared pointer (None in Python) if failed.
 	    GameObject *obj = GameObjectManager::getSingleton().getByID(ID);
 	    if (!obj)
 		    return PythonObjectConnectorPtr();

@@ -47,7 +47,7 @@ class PythonGameObject : virtual public GameObject
     protected:
 	    PythonObjectConnectorPtr mConnector;
 
-	    py::object mPythonEvents;
+	    py::dict mPythonEvents;
 
     public:
 	    PythonGameObject();
@@ -67,7 +67,7 @@ class PythonGameObject : virtual public GameObject
 	    PythonObjectConnectorPtr getConnector() { return mConnector; }
 
 	    //Sets up the script.
-	    void setUpScript(Ogre::String script);
+	    void setScript(Ogre::String script);
 };
 
 /*
