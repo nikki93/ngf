@@ -62,7 +62,6 @@ end
 
 package.files = {
 matchrecursive("*.h", "*.cpp"),
-"../../ConfigScript.cpp",
 "../../Ngf.cpp"
 }
 

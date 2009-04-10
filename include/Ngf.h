@@ -30,9 +30,6 @@
 
 #include "FastDelegate.h"
 
-//Send a reply. Used inside a GameObject::receiveMessage() function.
-//#define NGF_SEND_REPLY(value) {NGF::GameObjectManager::getSingletonPtr()->setReply(value);}
-
 //Register a GameObject type. For easy registration if you're too lazy to type both the
 //typename and a string. ;-)
 #define NGF_REGISTER_OBJECT_TYPE(type) NGF::GameObjectFactory::getSingleton().registerObjectType< type >( #type )
