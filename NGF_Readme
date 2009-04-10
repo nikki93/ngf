@@ -6,8 +6,7 @@ NGF is a set of framework classes that helps write software, especially
 games using Ogre. It requires boost.
 
 To get NGF working with your project, just include the file 'Ngf.h'
-(located in the 'include' folder), and compile and link 'Ngf.cpp' and
-'ConfigFile.cpp' with your project.
+(located in the 'include' folder), and compile and link 'Ngf.cpp'.
 
 To build the 'ngftutorials', you'll have to edit the respective
 'premake.lua' file to reflect the include and library

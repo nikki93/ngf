@@ -5,7 +5,6 @@
  *
  *    Description:  The NGF framework header.
  *
- *        Version:  1.0
  *        Created:  10/22/2008 11:32:56 AM
  *
  *         Author:  Nikhilesh (nikki)
@@ -22,16 +21,13 @@
 #include "OgreSingleton.h"
 #include "OgreException.h"
 #include "OgreVector3.h"
-#include "OgreVector4.h"
 #include "OgreQuaternion.h"
 #include "OgreFrameListener.h"
-#include "OgreResourceGroupManager.h"
 #include "OgreUserDefinedObject.h"
-#include "OgreColourValue.h"
+#include "OgreStringConverter.h"
 
 #include "boost/any.hpp"
 
-#include "ConfigScript.h"
 #include "FastDelegate.h"
 
 //Send a reply. Used inside a GameObject::receiveMessage() function.
@@ -435,7 +431,6 @@ class Loader
 protected:
 	LoaderHelperFunction mHelper;
 	GameObjectManager *mGameMgr;
-	ConfigScriptLoader *mScriptLoader;
 
 	bool mUseFactory;
 
@@ -444,11 +439,9 @@ public:
 	//GameObjectFactory (through GameObjectManager::createObject(<string>, ...)).
 	Loader(LoaderHelperFunction help = 0);
 
-	~Loader();
-
 	//Whether to use factory or not. If no, you provide the callback (helper) function. Otherwise,
 	//we use the GameObjectFactory (through GameObjectManager::createObject(<string>, ...)).
-	void useFactory(bool use) { mUseFactory = use; }
+	void useFactory(bool use, LoaderHelperFunction help = 0) { mUseFactory = use; mHelper = help; }
 
 	//Loads an NGF level. Give it the name of the level in the '.ngf' script. You can also give an additional
 	//positional displacement and rotation. This can be useful for loading when a level is already loaded, to
