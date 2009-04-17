@@ -27,14 +27,14 @@ namespace NGF { namespace Bullet {
  * =====================================================================================
  */
 
-    void registerForCollision(BulletGameObject *object, btCollisionObject *physic)
+    void registerBulletGameObject(BulletGameObject *object, btCollisionObject *physic)
     {
         gContactAddedCallback = _contactAdded;
         physic->setUserPointer(object);
         physic->setCollisionFlags(physic->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
     }
     //----------------------------------------------------------------------------------   
-    BulletGameObject* getObjectFromPhysicsObject(btCollisionObject *physic)
+    BulletGameObject* fromBulletObject(btCollisionObject *physic)
     {
         void *usr = physic->getUserPointer();
 
@@ -52,8 +52,8 @@ namespace NGF { namespace Bullet {
         btCollisionObject *phy2 = const_cast<btCollisionObject *>(colObj1);
 
         //Get the NGF GameObjects, and call the relevant methods.
-        BulletGameObject *obj1 = getObjectFromPhysicsObject(phy1);
-        BulletGameObject *obj2 = getObjectFromPhysicsObject(phy2);
+        BulletGameObject *obj1 = fromBulletObject(phy1);
+        BulletGameObject *obj2 = fromBulletObject(phy2);
 
         if (obj1 && obj2)
         {

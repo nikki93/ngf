@@ -37,7 +37,7 @@ typedef boost::shared_ptr<PythonObjectConnector> PythonObjectConnectorPtr;
  *  Description:  A scriptable GameObject. Implement the get, set and method functions.
  *  		  The idea is similar to that followed in 'SimKin'.
  *
- *  		  We don't inherit from NGF::GameObject here to prevent
+ *  		  We virtually inherit from NGF::GameObject here to prevent
  *  		  multiple-inheritance problems.
  * =====================================================================================
  */
