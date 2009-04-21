@@ -36,11 +36,11 @@ class BulletGameObject;
 //Register a BulletGameObject for collision. It is associated with the given btCollisionObject.
 //The given BulletGameObject will be notified of any collision events involving the given
 //btCollisionObject. You can also use 'setBulletObject' from within a BulletGameObject.
-void registerForCollision(BulletGameObject *object, btCollisionObject *physic);
+void registerBulletGameObject(BulletGameObject *object, btCollisionObject *physic);
 
 //Returns the BulletGameObject associated with the given btCollisionObject. An association is
 //made with the 'registerForCollision' function.
-BulletGameObject* getObjectFromPhysicsObject(btCollisionObject *physic);
+BulletGameObject* fromBulletObject(btCollisionObject *physic);
 
 /*
  * =====================================================================================
@@ -66,7 +66,7 @@ class BulletGameObject : virtual public GameObject
         virtual void collide(GameObject *other, btCollisionObject *otherPhysicsObject, btManifoldPoint &contact) { }
 
         //Register self for collision event. We're associated with the given GameObject.
-        inline void setBulletObject(btCollisionObject *physic) { registerForCollision(this, physic); }
+        inline void setBulletObject(btCollisionObject *physic) { registerBulletGameObject(this, physic); }
 };
 
 } //namespace Bullet

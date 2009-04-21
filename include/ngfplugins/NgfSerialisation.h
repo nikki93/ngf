@@ -202,32 +202,32 @@ class GameObjectRecord
 //body's position, orientation, linear and angular velocity get saved.
 #define NGF_SERIALISE_BULLET_BODY(var)                                                         \
             {                                                                                  \
-                Ogre::Vector3 var##pos, var##lVel, var##aVel;                                  \
-                Ogre::Quaternion var##rot;                                                     \
+                Ogre::Vector3 var##_pos, var##_lVel, var##_aVel;                               \
+                Ogre::Quaternion var##_rot;                                                    \
                                                                                                \
                 NGF_SERIALISE_ON_SAVE                                                          \
                 {                                                                              \
                     btTransform trans = var->getWorldTransform();                              \
                                                                                                \
-                    var##pos = BtOgre::Convert::toOgre(trans.getOrigin());                     \
-                    var##rot = BtOgre::Convert::toOgre(trans.getRotation());                   \
-                    var##lVel = BtOgre::Convert::toOgre(var->getLinearVelocity());             \
-                    var##aVel = BtOgre::Convert::toOgre(var->getAngularVelocity());            \
+                    var##_pos = BtOgre::Convert::toOgre(trans.getOrigin());                    \
+                    var##_rot = BtOgre::Convert::toOgre(trans.getRotation());                  \
+                    var##_lVel = BtOgre::Convert::toOgre(var->getLinearVelocity());            \
+                    var##_aVel = BtOgre::Convert::toOgre(var->getAngularVelocity());           \
                 }                                                                              \
                                                                                                \
-                NGF_SERIALISE_OGRE(Vector3, var##pos);                                         \
-                NGF_SERIALISE_OGRE(Quaternion, var##rot);                                      \
-                NGF_SERIALISE_OGRE(Vector3, var##lVel);                                        \
-                NGF_SERIALISE_OGRE(Vector3, var##aVel);                                        \
+                NGF_SERIALISE_OGRE(Vector3, var##_pos);                                        \
+                NGF_SERIALISE_OGRE(Quaternion, var##_rot);                                     \
+                NGF_SERIALISE_OGRE(Vector3, var##_lVel);                                       \
+                NGF_SERIALISE_OGRE(Vector3, var##_aVel);                                       \
                                                                                                \
                 NGF_SERIALISE_ON_LOAD                                                          \
                 {                                                                              \
-                    btVector3 pos = BtOgre::Convert::toBullet(var##pos);                       \
-                    btQuaternion rot = BtOgre::Convert::toBullet(var##rot);                    \
+                    btVector3 pos = BtOgre::Convert::toBullet(var##_pos);                      \
+                    btQuaternion rot = BtOgre::Convert::toBullet(var##_rot);                   \
                                                                                                \
                     var->setWorldTransform(btTransform(rot, pos));                             \
-                    var->setLinearVelocity(BtOgre::Convert::toBullet(var##lVel));              \
-                    var->setAngularVelocity(BtOgre::Convert::toBullet(var##aVel));             \
+                    var->setLinearVelocity(BtOgre::Convert::toBullet(var##_lVel));             \
+                    var->setAngularVelocity(BtOgre::Convert::toBullet(var##_aVel));            \
                 }                                                                              \
             }                                                                                      
 

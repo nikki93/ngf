@@ -1,0 +1,123 @@
+diff --git a/include/ngfplugins/NgfBullet.h b/include/ngfplugins/NgfBullet.h
+index 1c8d6a0..0b25669 100644
+--- a/include/ngfplugins/NgfBullet.h
++++ b/include/ngfplugins/NgfBullet.h
+@@ -36,11 +36,11 @@ class BulletGameObject;
+ //Register a BulletGameObject for collision. It is associated with the given btCollisionObject.
+ //The given BulletGameObject will be notified of any collision events involving the given
+ //btCollisionObject. You can also use 'setBulletObject' from within a BulletGameObject.
+-void registerForCollision(BulletGameObject *object, btCollisionObject *physic);
++void registerBulletGameObject(BulletGameObject *object, btCollisionObject *physic);
+ 
+ //Returns the BulletGameObject associated with the given btCollisionObject. An association is
+ //made with the 'registerForCollision' function.
+-BulletGameObject* getObjectFromPhysicsObject(btCollisionObject *physic);
++BulletGameObject* fromBulletObject(btCollisionObject *physic);
+ 
+ /*
+  * =====================================================================================
+@@ -66,7 +66,7 @@ class BulletGameObject : virtual public GameObject
+         virtual void collide(GameObject *other, btCollisionObject *otherPhysicsObject, btManifoldPoint &contact) { }
+ 
+         //Register self for collision event. We're associated with the given GameObject.
+-        inline void setBulletObject(btCollisionObject *physic) { registerForCollision(this, physic); }
++        inline void setBulletObject(btCollisionObject *physic) { registerBulletGameObject(this, physic); }
+ };
+ 
+ } //namespace Bullet
+diff --git a/include/ngfplugins/NgfPython.h b/include/ngfplugins/NgfPython.h
+index becd56c..af3a5ea 100644
+--- a/include/ngfplugins/NgfPython.h
++++ b/include/ngfplugins/NgfPython.h
+@@ -37,7 +37,7 @@ typedef boost::shared_ptr<PythonObjectConnector> PythonObjectConnectorPtr;
+  *  Description:  A scriptable GameObject. Implement the get, set and method functions.
+  *  		  The idea is similar to that followed in 'SimKin'.
+  *
+- *  		  We don't inherit from NGF::GameObject here to prevent
++ *  		  We virtually inherit from NGF::GameObject here to prevent
+  *  		  multiple-inheritance problems.
+  * =====================================================================================
+  */
+diff --git a/include/ngfplugins/NgfSerialisation.h b/include/ngfplugins/NgfSerialisation.h
+index e4d38c7..771013e 100644
+--- a/include/ngfplugins/NgfSerialisation.h
++++ b/include/ngfplugins/NgfSerialisation.h
+@@ -202,32 +202,32 @@ class GameObjectRecord
+ //body's position, orientation, linear and angular velocity get saved.
+ #define NGF_SERIALISE_BULLET_BODY(var)                                                         \
+             {                                                                                  \
+-                Ogre::Vector3 var##pos, var##lVel, var##aVel;                                  \
+-                Ogre::Quaternion var##rot;                                                     \
++                Ogre::Vector3 var##_pos, var##_lVel, var##_aVel;                               \
++                Ogre::Quaternion var##_rot;                                                    \
+                                                                                                \
+                 NGF_SERIALISE_ON_SAVE                                                          \
+                 {                                                                              \
+                     btTransform trans = var->getWorldTransform();                              \
+                                                                                                \
+-                    var##pos = BtOgre::Convert::toOgre(trans.getOrigin());                     \
+-                    var##rot = BtOgre::Convert::toOgre(trans.getRotation());                   \
+-                    var##lVel = BtOgre::Convert::toOgre(var->getLinearVelocity());             \
+-                    var##aVel = BtOgre::Convert::toOgre(var->getAngularVelocity());            \
++                    var##_pos = BtOgre::Convert::toOgre(trans.getOrigin());                    \
++                    var##_rot = BtOgre::Convert::toOgre(trans.getRotation());                  \
++                    var##_lVel = BtOgre::Convert::toOgre(var->getLinearVelocity());            \
++                    var##_aVel = BtOgre::Convert::toOgre(var->getAngularVelocity());           \
+                 }                                                                              \
+                                                                                                \
+-                NGF_SERIALISE_OGRE(Vector3, var##pos);                                         \
+-                NGF_SERIALISE_OGRE(Quaternion, var##rot);                                      \
+-                NGF_SERIALISE_OGRE(Vector3, var##lVel);                                        \
+-                NGF_SERIALISE_OGRE(Vector3, var##aVel);                                        \
++                NGF_SERIALISE_OGRE(Vector3, var##_pos);                                        \
++                NGF_SERIALISE_OGRE(Quaternion, var##_rot);                                     \
++                NGF_SERIALISE_OGRE(Vector3, var##_lVel);                                       \
++                NGF_SERIALISE_OGRE(Vector3, var##_aVel);                                       \
+                                                                                                \
+                 NGF_SERIALISE_ON_LOAD                                                          \
+                 {                                                                              \
+-                    btVector3 pos = BtOgre::Convert::toBullet(var##pos);                       \
+-                    btQuaternion rot = BtOgre::Convert::toBullet(var##rot);                    \
++                    btVector3 pos = BtOgre::Convert::toBullet(var##_pos);                      \
++                    btQuaternion rot = BtOgre::Convert::toBullet(var##_rot);                   \
+                                                                                                \
+                     var->setWorldTransform(btTransform(rot, pos));                             \
+-                    var->setLinearVelocity(BtOgre::Convert::toBullet(var##lVel));              \
+-                    var->setAngularVelocity(BtOgre::Convert::toBullet(var##aVel));             \
++                    var->setLinearVelocity(BtOgre::Convert::toBullet(var##_lVel));             \
++                    var->setAngularVelocity(BtOgre::Convert::toBullet(var##_aVel));            \
+                 }                                                                              \
+             }                                                                                      
+ 
+diff --git a/plugins/ngfbullet/NgfBullet.cpp b/plugins/ngfbullet/NgfBullet.cpp
+index 31ba95a..3c6edcd 100644
+--- a/plugins/ngfbullet/NgfBullet.cpp
++++ b/plugins/ngfbullet/NgfBullet.cpp
+@@ -27,14 +27,14 @@ namespace NGF { namespace Bullet {
+  * =====================================================================================
+  */
+ 
+-    void registerForCollision(BulletGameObject *object, btCollisionObject *physic)
++    void registerBulletGameObject(BulletGameObject *object, btCollisionObject *physic)
+     {
+         gContactAddedCallback = _contactAdded;
+         physic->setUserPointer(object);
+         physic->setCollisionFlags(physic->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
+     }
+     //----------------------------------------------------------------------------------   
+-    BulletGameObject* getObjectFromPhysicsObject(btCollisionObject *physic)
++    BulletGameObject* fromBulletObject(btCollisionObject *physic)
+     {
+         void *usr = physic->getUserPointer();
+ 
+@@ -52,8 +52,8 @@ namespace NGF { namespace Bullet {
+         btCollisionObject *phy2 = const_cast<btCollisionObject *>(colObj1);
+ 
+         //Get the NGF GameObjects, and call the relevant methods.
+-        BulletGameObject *obj1 = getObjectFromPhysicsObject(phy1);
+-        BulletGameObject *obj2 = getObjectFromPhysicsObject(phy2);
++        BulletGameObject *obj1 = fromBulletObject(phy1);
++        BulletGameObject *obj2 = fromBulletObject(phy2);
+ 
+         if (obj1 && obj2)
+         {
