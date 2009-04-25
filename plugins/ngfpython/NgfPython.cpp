@@ -51,42 +51,106 @@ namespace NGF { namespace Python {
 		    .def("getFlags", &PythonObjectConnector::getFlags)
 		    ;
 
-	    //Bind Ogre::Vector3.
-	    py::class_<Ogre::Vector3>("Vector3", py::init<>())
+	    //--- Ogre bindings ----------------------------------------------------
+
+	    //Ogre::Radian.
+            py::class_<Ogre::Radian>("Radian", py::init<Ogre::Real>())
+                    .def(py::init<Ogre::Degree>())
+                    .def("valueDegrees", &Ogre::Radian::valueDegrees)
+                    .def("valueRadians", &Ogre::Radian::valueRadians)
+
+                    .def(+py::self)
+                    .def(py::self + py::self)
+                    .def(py::self + Ogre::Degree())
+                    .def(py::self += py::self)
+                    .def(py::self += Ogre::Degree())
+                    .def(-py::self)
+                    .def(py::self - py::self)
+                    .def(py::self - Ogre::Degree())
+                    .def(py::self -= py::self)
+                    .def(py::self -= Ogre::Degree())
+
+                    .def(py::self * Ogre::Real())
+                    .def(py::self * py::self)
+                    .def(py::self *= Ogre::Real())
+                    .def(py::self / Ogre::Real())
+                    .def(py::self /= Ogre::Real())
+
+                    .def(py::self < py::self)
+                    .def(py::self <= py::self)
+                    .def(py::self == py::self)
+                    .def(py::self != py::self)
+                    .def(py::self >= py::self)
+                    .def(py::self > py::self)
+            ;
+
+	    //Ogre::Degree.
+            py::class_<Ogre::Degree>("Degree", py::init<Ogre::Real>())
+                    .def(py::init<Ogre::Radian>())
+                    .def("valueDegrees", &Ogre::Degree::valueDegrees)
+                    .def("valueRadians", &Ogre::Degree::valueRadians)
+
+                    .def(+py::self)
+                    .def(py::self + py::self)
+                    .def(py::self + Ogre::Radian())
+                    .def(py::self += py::self)
+                    .def(py::self += Ogre::Radian())
+                    .def(-py::self)
+                    .def(py::self - py::self)
+                    .def(py::self - Ogre::Radian())
+                    .def(py::self -= py::self)
+                    .def(py::self -= Ogre::Radian())
+
+                    .def(py::self * Ogre::Real())
+                    .def(py::self * py::self)
+                    .def(py::self *= Ogre::Real())
+                    .def(py::self / Ogre::Real())
+                    .def(py::self /= Ogre::Real())
+
+                    .def(py::self < py::self)
+                    .def(py::self <= py::self)
+                    .def(py::self == py::self)
+                    .def(py::self != py::self)
+                    .def(py::self >= py::self)
+                    .def(py::self > py::self)
+            ;
+
+	    //Ogre::Vector3.
+            py::object vector3Class = py::class_<Ogre::Vector3>("Vector3", py::init<>())
 		    .def(py::init<Ogre::Real,Ogre::Real,Ogre::Real>())
 		    .def_readwrite("x", &Ogre::Vector3::x)
 		    .def_readwrite("y", &Ogre::Vector3::y)
 		    .def_readwrite("z", &Ogre::Vector3::z)
 
-                    .def(py::self_ns::self == py::self_ns::self)
-                    .def(py::self_ns::self != py::self_ns::self)
-                    .def(py::self_ns::self < py::self_ns::self)
-                    .def(py::self_ns::self > py::self_ns::self)
+                    .def(py::self == py::self)
+                    .def(py::self != py::self)
+                    .def(py::self < py::self)
+                    .def(py::self > py::self)
 
-                    .def(py::self_ns::self + py::self_ns::self)
-                    .def(py::self_ns::self - py::self_ns::self)
-                    .def(py::self_ns::self * Ogre::Real())
-                    .def(py::self_ns::self * py::self_ns::self)
-                    .def(py::self_ns::self / Ogre::Real())
-                    .def(py::self_ns::self / py::self_ns::self)
-                    .def(+py::self_ns::self)
-                    .def(-py::self_ns::self)
+                    .def(py::self + py::self)
+                    .def(py::self - py::self)
+                    .def(py::self * Ogre::Real())
+                    .def(py::self * py::self)
+                    .def(py::self / Ogre::Real())
+                    .def(py::self / py::self)
+                    .def(+py::self)
+                    .def(-py::self)
 
-                    .def(Ogre::Real() * py::self_ns::self)
-                    .def(Ogre::Real() / py::self_ns::self)
-                    .def(py::self_ns::self + Ogre::Real())
-                    .def(Ogre::Real() + py::self_ns::self)
-                    .def(py::self_ns::self - Ogre::Real())
-                    .def(Ogre::Real() - py::self_ns::self)
+                    .def(Ogre::Real() * py::self)
+                    .def(Ogre::Real() / py::self)
+                    .def(py::self + Ogre::Real())
+                    .def(Ogre::Real() + py::self)
+                    .def(py::self - Ogre::Real())
+                    .def(Ogre::Real() - py::self)
 
-                    .def(py::self_ns::self += py::self_ns::self)
-                    .def(py::self_ns::self += Ogre::Real())
-                    .def(py::self_ns::self -= py::self_ns::self)
-                    .def(py::self_ns::self -= Ogre::Real())
-                    .def(py::self_ns::self *= py::self_ns::self)
-                    .def(py::self_ns::self *= Ogre::Real())
-                    .def(py::self_ns::self /= py::self_ns::self)
-                    .def(py::self_ns::self /= Ogre::Real())
+                    .def(py::self += py::self)
+                    .def(py::self += Ogre::Real())
+                    .def(py::self -= py::self)
+                    .def(py::self -= Ogre::Real())
+                    .def(py::self *= py::self)
+                    .def(py::self *= Ogre::Real())
+                    .def(py::self /= py::self)
+                    .def(py::self /= Ogre::Real())
 
                     .def("length", &Ogre::Vector3::length)
                     .def("squaredLength", &Ogre::Vector3::squaredLength)
@@ -101,7 +165,7 @@ namespace NGF { namespace Python {
                     .def("makeCeil", &Ogre::Vector3::makeCeil)
                     .def("perpendicular", &Ogre::Vector3::perpendicular)
                     .def("randomDeviant", &Ogre::Vector3::randomDeviant)
-                    //TODO: Expose 'Radian' for 'angleBetween'.
+                    .def("angleBetween", &Ogre::Vector3::angleBetween)
                     .def("getRotationTo", &Ogre::Vector3::getRotationTo)
                     .def("isZeroLength", &Ogre::Vector3::isZeroLength)
                     .def("normalisedCopy", &Ogre::Vector3::normalisedCopy)
@@ -113,16 +177,67 @@ namespace NGF { namespace Python {
 		    .enable_pickling()
 		    ;
 	    
-	    //Bind Ogre::Quaternion.
-            //TODO: Bind operators and other functions.
-	    py::class_<Ogre::Quaternion>("Quaternion", py::init<>())
+            vector3Class.attr("ZERO") = Ogre::Vector3::ZERO;
+            vector3Class.attr("UNIT_X") = Ogre::Vector3::UNIT_X;
+            vector3Class.attr("UNIT_Y") = Ogre::Vector3::UNIT_Y;
+            vector3Class.attr("UNIT_Z") = Ogre::Vector3::UNIT_Z;
+            vector3Class.attr("NEGATIVE_UNIT_X") = Ogre::Vector3::NEGATIVE_UNIT_X;
+            vector3Class.attr("NEGATIVE_UNIT_Y") = Ogre::Vector3::NEGATIVE_UNIT_Y;
+            vector3Class.attr("NEGATIVE_UNIT_Z") = Ogre::Vector3::NEGATIVE_UNIT_Z;
+            vector3Class.attr("UNIT_SCALE") = Ogre::Vector3::UNIT_SCALE;
+
+	    //Ogre::Quaternion.
+            //TODO: Bind overloaded functions.
+            py::object quaternionClass = py::class_<Ogre::Quaternion>("Quaternion", py::init<>())
 		    .def(py::init<Ogre::Real,Ogre::Real,Ogre::Real,Ogre::Real>())
+		    .def(py::init<Ogre::Radian&,Ogre::Vector3&>())
+                    .def(py::init<Ogre::Vector3&, Ogre::Vector3&, Ogre::Vector3&>())
+                    .def(py::init<Ogre::Vector3*>())
 		    .def_readwrite("w", &Ogre::Quaternion::w)
 		    .def_readwrite("x", &Ogre::Quaternion::x)
 		    .def_readwrite("y", &Ogre::Quaternion::y)
 		    .def_readwrite("z", &Ogre::Quaternion::z)
+                    .def("swap", &Ogre::Quaternion::swap)
+
+                    .def("FromAngleAxis", &Ogre::Quaternion::FromAngleAxis)
+                    .def("xAxis", &Ogre::Quaternion::xAxis)
+                    .def("yAxis", &Ogre::Quaternion::yAxis)
+                    .def("zAxis", &Ogre::Quaternion::zAxis)
+
+                    .def(py::self + py::self)
+                    .def(py::self - py::self)
+                    .def(py::self * py::self)
+                    .def(py::self * Ogre::Real())
+                    .def(Ogre::Real() * py::self)
+                    .def(-py::self)
+                    .def(py::self == py::self)
+                    .def(py::self != py::self)
+
+                    .def("Dot", &Ogre::Quaternion::Dot)
+                    .def("Norm", &Ogre::Quaternion::Norm)
+                    .def("normalise", &Ogre::Quaternion::normalise)
+                    .def("Inverse", &Ogre::Quaternion::Inverse)
+                    .def("UnitInverse", &Ogre::Quaternion::UnitInverse)
+                    .def("Exp", &Ogre::Quaternion::Exp)
+                    .def("Log", &Ogre::Quaternion::Log)
+
+                    .def(py::self * Ogre::Vector3())
+
+                    .def("getRoll", &Ogre::Quaternion::getRoll)
+                    .def("getPitch", &Ogre::Quaternion::getPitch)
+                    .def("getYaw", &Ogre::Quaternion::getYaw)
+                    .def("Slerp", &Ogre::Quaternion::Slerp)
+                    .def("SlerpExtraSpins", &Ogre::Quaternion::SlerpExtraSpins)
+                    .def("Intermediate", &Ogre::Quaternion::Intermediate)
+                    .def("Squad", &Ogre::Quaternion::Squad)
+                    .def("nlerp", &Ogre::Quaternion::nlerp)
+
 		    .enable_pickling()
 		    ;
+
+            quaternionClass.attr("ZERO") = Ogre::Quaternion::ZERO;
+            quaternionClass.attr("IDENTITY") = Ogre::Quaternion::IDENTITY;
+            quaternionClass.attr("ms_fEpsilon") = Ogre::Quaternion::ms_fEpsilon;
     }
 
 /*
