@@ -294,7 +294,7 @@ namespace NGF { namespace Python {
  */
 
     //--------------------------------------------------------------------------------------
-    PythonManager::PythonManager(PythonManager::PrintFunc printer = 0)
+    PythonManager::PythonManager(PythonManager::PrintFunc printer)
     {
 	    //Do the binds.
 	    initNgf();

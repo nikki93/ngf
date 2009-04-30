@@ -90,7 +90,7 @@ class PythonManager : public Ogre::Singleton<PythonManager>
 	    static PrintFunc mPrinter;
 
     public:
-	    PythonManager(PrintFunc printer);
+	    PythonManager(PrintFunc printer = 0);
 	    ~PythonManager() {}
 
 	    //Usual singleton stuff.
@@ -110,7 +110,13 @@ class PythonManager : public Ogre::Singleton<PythonManager>
 	    static PythonObjectConnectorPtr _getObject(std::string name);
 	    static PythonObjectConnectorPtr _getObject(int ID);
 
-	    static void _print(std::string str) { if (mPrinter) mPrinter(str); }
+	    static void _print(std::string str) 
+            { 
+                if (mPrinter) 
+                    mPrinter(str); 
+                else 
+                    Ogre::LogManager::getSingleton().logMessage("Python: " + str); 
+            }
 };
 
 /*
@@ -224,6 +230,8 @@ class PythonObjectConnector
 			cname = py::extract<ctype>(args[0]);                                   \
 			return py::object();                                                   \
 		    }
+#define NGF_PY_RETURN                                                                          \
+                    return py::object
 #define NGF_PY_END_IMPL                                                                        \
 		}                                                                              \
 	    }                                                                                  \
