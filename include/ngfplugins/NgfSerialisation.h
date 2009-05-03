@@ -92,9 +92,13 @@ class Serialiser : public Ogre::Singleton<Serialiser>
 class GameObjectRecord
 {
     protected:
+        //Usual GameObject data.
+	ID mID;
 	Ogre::String mType;
 	Ogre::String mName;
 	std::map<Ogre::String, std::vector<Ogre::String> > mProps;
+
+        //Extra information from 'serialise' function.
 	std::map<Ogre::String, std::vector<Ogre::String> > mInfo;
 
 	friend class boost::serialization::access;
@@ -102,6 +106,7 @@ class GameObjectRecord
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
+	    ar & mID;
 	    ar & mType;
 	    ar & mName;
 	    ar & mProps;
@@ -179,6 +184,19 @@ class GameObjectRecord
 		    var = Ogre::StringConverter::parse##type(var##str);                        \
 	    }
 
+//For serialising pointers to GameObjects. The GameObject pointed to must itself be a
+//SerialisableGameObject, because this doesn't actually create any GameObject, but just restores
+//the pointer to the pointed GameObject.
+#define NGF_SERIALISE_GAMEOBJECTPTR(var)                                                       \
+            if (save) {                                                                        \
+		out.addProperty(#var , Ogre::StringConverter::toString(var->getID()), "");     \
+            } else {                                                                           \
+		Ogre::String var##str = in.getValue(#var, 0, "n");                             \
+                NGF::ID id = Ogre::StringConverter::parseInt(var##str);                        \
+                var = NGF::GameObjectManager::getSingleton().getByID(id);                      \
+            }
+
+		//LogManager::getSingleton().logMessage(var->getID());     \
 //Blocks following these macros would be called on saving and loading respectively.
 #define NGF_SERIALISE_ON_SAVE                                                                  \
             if(save)

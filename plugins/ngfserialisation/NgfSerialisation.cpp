@@ -69,7 +69,7 @@ namespace NGF { namespace Serialisation {
 
                     //Create GameObject with restored type, position, rotation, properties, name.
                     SerialisableGameObject *obj = dynamic_cast<SerialisableGameObject*>
-                            (GameObjectManager::getSingleton().createObject(rec.mType, pos, rot, rec.mProps, rec.mName));
+                            (GameObjectManager::getSingleton()._createObject(rec.mType, rec.mID, pos, rot, rec.mProps, rec.mName));
 
                     //Tell GameObject to restore its state. It gets back the information it saved.
                     if (obj)
@@ -88,7 +88,8 @@ namespace NGF { namespace Serialisation {
                     //Tell the GameObject to write its stuff.
                     GameObjectRecord rec = obj->serialise(true, dummy);
 
-                    //Save what we can save ourselves (names, properties).
+                    //Save what we can save ourselves (ID, name, properties).
+                    rec.mID = obj->getID();
                     rec.mName = obj->getName();
                     rec.mProps = obj->getProperties();
 

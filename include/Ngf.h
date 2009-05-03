@@ -160,7 +160,7 @@ public:
 	virtual void pausedTick(const Ogre::FrameEvent& evt) { }
 
 	//Called when a message is received.
-	virtual MessageReply receiveMessage(Message msg) { }
+	virtual MessageReply receiveMessage(Message msg) { NGF_NO_REPLY(); }
 
 	//Called on destruction (for scripted objects, as they are GCed).
 	virtual void destroy(void) { }
@@ -211,6 +211,11 @@ protected:
 		CreateFunctionMap;
 	CreateFunctionMap mCreateFunctions;
 
+	typedef std::map<Ogre::String, fastdelegate::FastDelegate< 
+		GameObject* (ID, Ogre::Vector3 , Ogre::Quaternion , PropertyList, Ogre::String) > > 
+		IDCreateFunctionMap;
+	IDCreateFunctionMap mIDCreateFunctions;
+
 public:
 	//Register a GameObject type. Give the class as the template parameter, and the
 	//string name of the type as the string parameter. You can then use
@@ -224,6 +229,15 @@ public:
 	//GameObjectManager::createObject's template version, just the way the type is 
 	//specified is different.
 	NGF::GameObject *createObject(Ogre::String type, Ogre::Vector3 pos, 
+			Ogre::Quaternion rot, PropertyList props, Ogre::String name);
+
+	//Create an object with the given type as a string, and given ID. The type
+	//should be registered.  Use GameObjectManager::createObject instead for
+	//consistency. This is similar to GameObjectManager::createObject's template
+	//version, just the way the type is specified is different.
+        //
+        //Use this only if you're sure you know what you're doing!
+	NGF::GameObject *_createObject(Ogre::String type, ID id, Ogre::Vector3 pos, 
 			Ogre::Quaternion rot, PropertyList props, Ogre::String name);
 		
 	//------ Singleton functions ------------------------------
@@ -287,6 +301,25 @@ public:
 		PropertyList properties = PropertyList(), Ogre::String name = "")
 	{
 		return mObjectFactory->createObject(type, pos, rot, properties, name);
+	}
+
+	//Creates a GameObject of the given type and ID. Returns a pointer to the GameObject
+	//created.  Give name "noname" if you want the GameObject to not have a name.
+        //
+        //Use this only if you're sure you know what you're doing!
+	template<typename T>
+	GameObject* _createObject(ID id, Ogre::Vector3 pos, Ogre::Quaternion rot, PropertyList properties = PropertyList(), 
+		Ogre::String name = "");
+
+	//Creates a GameObject of the given type as a string, and given ID. Returns a
+	//pointer to the GameObject created. Give name "noname" if you want the GameObject
+	//to not have a name.
+        //
+        //Use this only if you're sure you know what you're doing!
+	GameObject* _createObject(Ogre::String type, ID id, Ogre::Vector3 pos, Ogre::Quaternion rot, 
+		PropertyList properties = PropertyList(), Ogre::String name = "")
+	{
+		return mObjectFactory->_createObject(type, id, pos, rot, properties, name);
 	}
 
 	//Destroys the GameObject with the given ID.
@@ -460,6 +493,7 @@ template<typename T>
 void GameObjectFactory::registerObjectType(Ogre::String type)
 {
 	mCreateFunctions[type] = fastdelegate::MakeDelegate(GameObjectManager::getSingletonPtr(), &GameObjectManager::createObject<T>);
+	mIDCreateFunctions[type] = fastdelegate::MakeDelegate(GameObjectManager::getSingletonPtr(), &GameObjectManager::_createObject<T>);
 }
 //--------------------------------------------------------------------------------------
 template<typename T>
@@ -467,17 +501,24 @@ GameObject* GameObjectManager::createObject(Ogre::Vector3 pos, Ogre::Quaternion 
 	PropertyList properties, Ogre::String name)
 {
 	//Calculate ID to assign.
-	ID objID;
+	ID id;
 	if (!(mUnusedIDs.empty()))
 	{
-		objID = mUnusedIDs[mUnusedIDs.size() - 1];
+		id = mUnusedIDs[mUnusedIDs.size() - 1];
 		mUnusedIDs.pop_back();
 	}
 	else
 	{
-		objID = mCurrentIDNo++;
+		id = mCurrentIDNo++;
 	}
 
+        return _createObject<T>(id, pos, rot, properties, name);
+}
+//--------------------------------------------------------------------------------------
+template<typename T>
+GameObject* GameObjectManager::_createObject(ID id, Ogre::Vector3 pos, Ogre::Quaternion rot, 
+	PropertyList properties, Ogre::String name)
+{
 	//No name.
 	name = ((name == "noname" ) ? "" : name);
 
@@ -499,10 +540,10 @@ GameObject* GameObjectManager::createObject(Ogre::Vector3 pos, Ogre::Quaternion 
 	}
 
 	//Create object.
-	T *obj = new T(pos, rot, objID, properties, name);
+	T *obj = new T(pos, rot, id, properties, name);
 
 	//Check if name and ID was correctly passed.
-	if ((obj->getID() != objID) || (obj->getName() != name))
+	if ((obj->getID() != id) || (obj->getName() != name))
 	{
 		OGRE_EXCEPT(Ogre::Exception::ERR_ITEM_NOT_FOUND, "Incorrect name or ID passed for GameObject with ID: " 
 			+ Ogre::StringConverter::toString(obj->getID()) + ", and name: '" + obj->getName() 
@@ -510,7 +551,7 @@ GameObject* GameObjectManager::createObject(Ogre::Vector3 pos, Ogre::Quaternion 
 	}
 
 	//Put in map.
-	mGameObjectMap.insert(std::pair<ID,GameObject*>(objID, obj));
+	mGameObjectMap.insert(std::pair<ID,GameObject*>(id, obj));
 
 	return obj;
 }

@@ -156,6 +156,15 @@ namespace NGF {
 		    return iter->second(pos, rot, props, name); //Found.
 	    return 0; //Not found.
     }
+    //----------------------------------------------------------------------------------
+    GameObject* GameObjectFactory::_createObject(Ogre::String type, ID id, Ogre::Vector3 pos, Ogre::Quaternion rot, PropertyList props, Ogre::String name)
+    {
+	    IDCreateFunctionMap::iterator iter = mIDCreateFunctions.find(type);
+
+	    if (iter != mIDCreateFunctions.end())
+		    return iter->second(id, pos, rot, props, name); //Found.
+	    return 0; //Not found.
+    }
 
 /*
  * =====================================================================================
