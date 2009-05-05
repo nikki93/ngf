@@ -68,6 +68,8 @@ public:
 	//Add a property. Specify the key, and the values (seperated by delemiters specified in delims).
 	//You can chain this method like so: props.addProperty(x,y).addProperty(a,b).addProperty(m,n).
 	PropertyList & addProperty(Ogre::String key, Ogre::String values, Ogre::String delims = " ");
+	PropertyList & operator()(Ogre::String key, Ogre::String values, Ogre::String delims = " ")
+        { return addProperty(key, values, delims); }
 
 	//Allows you to quickly create a new PropertyList. Same parameters as 'addProperty',
 	//but just creates a new PropertyList instead of adding to an existing one.
