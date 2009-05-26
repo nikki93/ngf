@@ -232,10 +232,17 @@ class PythonObjectConnector
 		    }
 #define NGF_PY_RETURN                                                                          \
                     return py::object
+#define NGF_PY_PASS_DOWN(baseClass)                                                            \
+                    return baseClass::pythonMethod(NGF_name, args)
 #define NGF_PY_END_IMPL                                                                        \
 		}                                                                              \
 	    }                                                                                  \
 	    return py::object();                                                               \
+	}
+#define NGF_PY_END_IMPL_BASE(baseClass)                                                        \
+		}                                                                              \
+	    }                                                                                  \
+	    return baseClass::pythonMethod(NGF_name, args);                                    \
 	}
 
 //To save an event. If the event isn't defined, a 'do nothing' event is created. After

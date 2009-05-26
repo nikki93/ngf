@@ -82,6 +82,8 @@ namespace NGF { namespace Python {
                     .def(py::self != py::self)
                     .def(py::self >= py::self)
                     .def(py::self > py::self)
+
+                    .enable_pickling()
             ;
 
 	    //Ogre::Degree.
@@ -113,6 +115,8 @@ namespace NGF { namespace Python {
                     .def(py::self != py::self)
                     .def(py::self >= py::self)
                     .def(py::self > py::self)
+
+                    .enable_pickling()
             ;
 
 	    //Ogre::Vector3.
@@ -353,6 +357,16 @@ namespace NGF { namespace Python {
 		    " 	return (self.w, self.x, self.y, self.z)\n"
 		    "Ngf.Quaternion.__getinitargs__ = tmp_Quaternion__getinitargs__\n"
 		    "del tmp_Quaternion__getinitargs__\n\n"
+
+		    "def tmp_Radian__getinitargs__(self):\n"
+		    " 	return (self.valueRadians())\n"
+		    "Ngf.Radian.__getinitargs__ = tmp_Radian__getinitargs__\n"
+		    "del tmp_Radian__getinitargs__\n\n"
+
+		    "def tmp_Degree__getinitargs__(self):\n"
+		    " 	return (self.valueDegrees())\n"
+		    "Ngf.Degree.__getinitargs__ = tmp_Degree__getinitargs__\n"
+		    "del tmp_Degree__getinitargs__\n\n"
 
 		    ,mMainNamespace,mMainNamespace
 		    );

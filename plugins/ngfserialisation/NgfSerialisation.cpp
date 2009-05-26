@@ -88,10 +88,14 @@ namespace NGF { namespace Serialisation {
                     //Tell the GameObject to write its stuff.
                     GameObjectRecord rec = obj->serialise(true, dummy);
 
-                    //Save what we can save ourselves (ID, name, properties).
+                    //Save what we can save ourselves (ID, name, properties). Add something to the propertylist
+                    //to allow GameObjects to know they're being loaded if they need to.
                     rec.mID = obj->getID();
                     rec.mName = obj->getName();
-                    rec.mProps = obj->getProperties();
+
+                    PropertyList props = obj->getProperties();
+                    props.addProperty("NGF_SERIALISED", "yes", "");
+                    rec.mProps = props;
 
                     //Add the record to our records-holder.
                     mRecords.push_back(rec);

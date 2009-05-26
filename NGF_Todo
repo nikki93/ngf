@@ -7,6 +7,8 @@ Not done
 
 - Expose 'ColourValue' to Python.
 
+- Add pickle support for Radian and Degree in Python.
+
 Done
 ----
 

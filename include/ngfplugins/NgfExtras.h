@@ -13,6 +13,9 @@
  * =====================================================================================
  */
 
+#ifndef __NGF_EXTRAS_H__
+#define __NGF_EXTRAS_H__
+
 #include "Ngf.h"
 #include "ngfplugins/NgfPython.h"
 #include <boost/function.hpp>
@@ -71,3 +74,5 @@ class TaskManagingGameObject : virtual public GameObject
                                                                                                \
 	return py::object();                                                                   \
     }
+
+#endif //#ifndef __NGF_EXTRAS_H__
