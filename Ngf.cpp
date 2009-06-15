@@ -182,8 +182,7 @@ namespace NGF {
     }
     //----------------------------------------------------------------------------------
     GameObjectManager::GameObjectManager()
-	    : mCurrentIDNo(0),
-	    mObjectFactory(new GameObjectFactory())
+	    : mObjectFactory(new GameObjectFactory())
     {
     }
     //----------------------------------------------------------------------------------
@@ -226,7 +225,6 @@ namespace NGF {
 	    }
 	    else
 	    {
-		    mUnusedIDs.push_back(objIter->first);
 		    GameObject *obj = objIter->second;
 
 		    mGameObjectMap.erase(objIter);
@@ -248,8 +246,6 @@ namespace NGF {
 	    }
 
 	    mGameObjectMap.clear();
-	    mCurrentIDNo = 0;
-	    mUnusedIDs.clear();
     }
     //----------------------------------------------------------------------------------
     GameObject* GameObjectManager::getByID(ID objID) const

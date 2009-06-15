@@ -263,10 +263,7 @@ protected:
 	std::map<ID,GameObject*> mGameObjectMap;
 	GameObjectFactory *mObjectFactory;
 
-	std::vector<ID> mUnusedIDs;
 	std::vector<ID> mObjectsToDestroy;
-
-	int mCurrentIDNo;
 
 public:
 
@@ -502,17 +499,9 @@ template<typename T>
 GameObject* GameObjectManager::createObject(Ogre::Vector3 pos, Ogre::Quaternion rot, 
 	PropertyList properties, Ogre::String name)
 {
-	//Calculate ID to assign.
-	ID id;
-	if (!(mUnusedIDs.empty()))
-	{
-		id = mUnusedIDs[mUnusedIDs.size() - 1];
-		mUnusedIDs.pop_back();
-	}
-	else
-	{
-		id = mCurrentIDNo++;
-	}
+	//Calculate ID to assign. Just search for an unused ID.
+        ID id = 0;
+        for (; mGameObjectMap.find(id) != mGameObjectMap.end(); ++id);
 
         return _createObject<T>(id, pos, rot, properties, name);
 }
