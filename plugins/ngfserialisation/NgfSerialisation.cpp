@@ -15,7 +15,7 @@
 
 #include "ngfplugins/NgfSerialisation.h"
 
-#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/map.hpp>
 #include <fstream>
@@ -41,7 +41,7 @@ namespace NGF { namespace Serialisation {
             //Serialise mRecords (a vector of GameObjectRecords), effectively saving
             //all GameObject information.
             std::ofstream ofs(filename.c_str());
-            boost::archive::text_oarchive oa(ofs);
+            boost::archive::binary_oarchive oa(ofs);
             oa << mRecords;
     }
     //----------------------------------------------------------------------------------   
@@ -50,13 +50,21 @@ namespace NGF { namespace Serialisation {
             mRecords.clear();
 
             {
-                    //Looad back the saved information into mRecords.
+                    //Load back the saved information into mRecords.
                     std::ifstream ifs(filename.c_str());
-                    boost::archive::text_iarchive ia(ifs);
+                    boost::archive::binary_iarchive ia(ifs);
                     ia >> mRecords;
             }
 
-            for (std::vector<GameObjectRecord>::iterator iter = mRecords.begin(); iter!= mRecords.end(); ++iter)
+            //We create 'em all first, and /then/ call the 'deserialise' function, so that
+            //GameObjects can assume other GameObjects to exist (otherwise order-of-deserialisation
+            //might cause dependency problems).
+
+            //Stores the created objects and their info so we can tell 'em afterward.
+            //typedef std::map<NGF::ID*, PropertyList> InfoMap;
+            //InfoMap infos;
+
+            for (std::vector<GameObjectRecord>::iterator iter = mRecords.begin(); iter != mRecords.end(); ++iter)
             {
                     GameObjectRecord rec = *iter;
                     PropertyList info = rec.getInfo();
@@ -70,10 +78,22 @@ namespace NGF { namespace Serialisation {
                     //Create GameObject with restored type, position, rotation, properties, name.
                     SerialisableGameObject *obj = dynamic_cast<SerialisableGameObject*>
                             (GameObjectManager::getSingleton()._createObject(rec.mType, rec.mID, pos, rot, rec.mProps, rec.mName));
+                    obj->setPersistent(rec.mPersistent);
 
-                    //Tell GameObject to restore its state. It gets back the information it saved.
+                    //Save this object and it's info so we can call the 'deserialise' later.
+                    //if (obj)
+                        //infos[obj] = info;
+            } 
+
+            for (std::vector<GameObjectRecord>::iterator iter = mRecords.begin(); iter != mRecords.end(); ++iter)
+            {
+                    GameObjectRecord rec = *iter;
+                    PropertyList info = rec.getInfo();
+                    SerialisableGameObject *obj = dynamic_cast<SerialisableGameObject*>
+                        (GameObjectManager::getSingleton().getByID(rec.mID));
+
                     if (obj)
-                            obj->serialise(false, info);
+                        obj->serialise(false, info);
             } 
     }
     //----------------------------------------------------------------------------------   
@@ -92,6 +112,7 @@ namespace NGF { namespace Serialisation {
                     //to allow GameObjects to know they're being loaded if they need to.
                     rec.mID = obj->getID();
                     rec.mName = obj->getName();
+                    rec.mPersistent = obj->isPersistent();
 
                     PropertyList props = obj->getProperties();
                     props.addProperty("NGF_SERIALISED", "yes", "");

@@ -15,6 +15,7 @@
 
 #include "OgreScriptLoader.h"
 #include "OgreResourceGroupManager.h"
+#include "OgreLogManager.h"
 
 #include "Ngf.h"
 
@@ -240,12 +241,20 @@ namespace NGF {
 	    std::map<ID,GameObject*>::iterator objIter;
 
 	    for (objIter = mGameObjectMap.begin();
-			    objIter != mGameObjectMap.end(); ++objIter)
+			    objIter != mGameObjectMap.end();)
 	    {
-		    delete objIter->second;
-	    }
+                GameObject *obj = objIter->second;
 
-	    mGameObjectMap.clear();
+                if (!(obj->isPersistent())) //If it doesn't want to die...
+                {
+		    delete objIter->second;
+                    mGameObjectMap.erase(objIter++);
+                }
+                else
+                {
+                    Ogre::LogManager::getSingleton().logMessage("PERSISTENT" + obj->getFlags());
+                }
+	    }
     }
     //----------------------------------------------------------------------------------
     GameObject* GameObjectManager::getByID(ID objID) const

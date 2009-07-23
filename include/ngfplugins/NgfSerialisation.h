@@ -18,7 +18,7 @@
 
 #include <Ogre.h> //Change this to only include specific headers when done.
 #include <Ngf.h>
-#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
 
 namespace NGF { namespace Serialisation {
 
@@ -96,6 +96,7 @@ class GameObjectRecord
 	ID mID;
 	Ogre::String mType;
 	Ogre::String mName;
+        bool mPersistent;
 	std::map<Ogre::String, std::vector<Ogre::String> > mProps;
 
         //Extra information from 'serialise' function.
@@ -109,19 +110,26 @@ class GameObjectRecord
 	    ar & mID;
 	    ar & mType;
 	    ar & mName;
+            ar & mPersistent;
 	    ar & mProps;
 	    ar & mInfo;
 	}
 
     public:
 	GameObjectRecord()
-	    : mType("none")
+	    : mType("none"),
+              mPersistent(false),
+              mID(0),
+              mName("")
 	{
 	}
 
 	GameObjectRecord(Ogre::String type, PropertyList info)
 	    : mType(type),
-	      mInfo(info)
+	      mInfo(info),
+              mPersistent(false),
+              mID(0),
+              mName("")
 	{
 	}
 
@@ -186,14 +194,22 @@ class GameObjectRecord
 
 //For serialising pointers to GameObjects. The GameObject pointed to must itself be a
 //SerialisableGameObject, because this doesn't actually create any GameObject, but just restores
-//the pointer to the pointed GameObject.
+//the pointer to the pointed GameObject. Works also for NULL pointers.
 #define NGF_SERIALISE_GAMEOBJECTPTR(var)                                                       \
             if (save) {                                                                        \
-		out.addProperty(#var , Ogre::StringConverter::toString(var->getID()), "");     \
+                if (var)                                                                       \
+                    out.addProperty(#var , Ogre::StringConverter::toString(var->getID()), ""); \
+                else                                                                           \
+                    out.addProperty(#var , "n", "");                                           \
             } else {                                                                           \
 		Ogre::String var##str = in.getValue(#var, 0, "n");                             \
-                NGF::ID id = Ogre::StringConverter::parseInt(var##str);                        \
-                var = NGF::GameObjectManager::getSingleton().getByID(id);                      \
+                if (var##str != "n")                                                           \
+                {                                                                              \
+                    NGF::ID id = Ogre::StringConverter::parseInt(var##str);                    \
+                    var = NGF::GameObjectManager::getSingleton().getByID(id);                  \
+                }                                                                              \
+                else                                                                           \
+                    var = NULL;                                                                \
             }
 
 		//LogManager::getSingleton().logMessage(var->getID());     \

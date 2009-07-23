@@ -134,6 +134,7 @@ class GameObject : public Ogre::UserDefinedObject
 	Ogre::String mType;
 	Ogre::String mFlags;
 	Ogre::String mName;
+        bool mPersistent;
 
 	friend class GameObjectManager;
 
@@ -148,7 +149,8 @@ public:
 	    : mID(id),
 	      mName(name),
 	      mProperties(properties),
-	      mType("NGF::GameObject")
+	      mType("NGF::GameObject"),
+              mPersistent(false)
 	{
 	}
 
@@ -189,6 +191,12 @@ public:
 
 	//Returns the flags string.
 	Ogre::String getFlags() const { return mFlags; }
+
+        //Set persistent (not destroyed when you call 'destroyAll').
+        void setPersistent(bool persistent) { mPersistent = persistent; }
+
+        //Check whether persistent.
+        bool isPersistent() { return mPersistent; }
 
 	//------ Ogre UserDefinedObject stuff ------
         
