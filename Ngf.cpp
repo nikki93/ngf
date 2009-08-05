@@ -240,21 +240,22 @@ namespace NGF {
     {
 	    std::map<ID,GameObject*>::iterator objIter;
 
+            std::map<ID,GameObject*> persistentObjects;
+
 	    for (objIter = mGameObjectMap.begin();
 			    objIter != mGameObjectMap.end();)
 	    {
                 GameObject *obj = objIter->second;
 
-                if (!(obj->isPersistent())) //If it doesn't want to die...
-                {
-		    delete objIter->second;
-                    mGameObjectMap.erase(objIter++);
-                }
+                if (obj->isPersistent()) //If it doesn't want to die...
+		    persistentObjects.insert(*objIter);
                 else
-                {
-                    Ogre::LogManager::getSingleton().logMessage("PERSISTENT" + obj->getFlags());
-                }
+                    delete obj;
+
+                mGameObjectMap.erase(objIter++);
 	    }
+
+            mGameObjectMap = persistentObjects;
     }
     //----------------------------------------------------------------------------------
     GameObject* GameObjectManager::getByID(ID objID) const

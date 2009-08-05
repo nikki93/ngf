@@ -16,9 +16,18 @@
 #ifndef __NGF_PYTHON_H__
 #define __NGF_PYTHON_H__
 
+#define PYTHON_25
+
 #include <Ogre.h> //Change this to only include specific headers when done.
 #include <Ngf.h>
-#include <python2.6/Python.h>
+
+//Need a better way to manage this.
+#ifdef PYTHON_25
+#include <python2.5/Python.h>
+#else
+#include <python2.6/python.h>
+#endif
+
 #include <boost/python.hpp>
 #include <boost/shared_ptr.hpp>
 
