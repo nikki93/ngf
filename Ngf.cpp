@@ -413,11 +413,6 @@ namespace NGF {
 		    OGRE_EXCEPT(Ogre::Exception::ERR_INVALIDPARAMS, "Bad world index given", "NGF::WorldManager::gotoWorld()");
 	    }
     }
-    //----------------------------------------------------------------------------------
-    unsigned int WorldManager::getCurrentWorldIndex()
-    {
-	    return currentWorld;
-    }
 
 /*
  * =====================================================================================

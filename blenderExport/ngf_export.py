@@ -85,5 +85,17 @@ def write(filename):
 	    out.write("\t}\n")
 
 	out.write("}\n\n")
+	
+	if "NGFExport.cfg" in [text.getName() for text in Blender.Text.Get()]:
+		if ((Blender.Text.Get("NGFExport.cfg").asLines()[0]) != filename):
+			old = Blender.Text.Get("NGFExport.cfg")
+			old.setName("NGFExport.cfg.old")
+			Blender.Text.unlink(old)
+	else:
+		txt = Blender.Text.New("NGFExport.cfg")
+		txt.write(filename)
 
-Blender.Window.FileSelector(write, "Export")
+if "NGFExport.cfg" in [text.getName() for text in Blender.Text.Get()]:
+	write(Blender.Text.Get("NGFExport.cfg").asLines()[0])
+else:
+	Blender.Window.FileSelector(write, "Export")

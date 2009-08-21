@@ -262,7 +262,7 @@ class PythonObjectConnector
                         .setdefault(#evt, py::eval("lambda *args: None"));                     \
         runString("del " #evt "\n")
 
-//To call a saved event. The event (funciton) receives a 'self' parameter, and whatever
+//To call a saved event. The event (function) receives a 'self' parameter, and whatever
 //other parameters are passed in.
 #define NGF_PY_CALL_EVENT(evt, ...)                                                            \
         mPythonEvents[#evt](mConnector, ##__VA_ARGS__)

@@ -439,7 +439,13 @@ public:
 	void gotoWorld(unsigned int worldNumber);
 
 	//Get the index number of the currently playing world.
-	unsigned int getCurrentWorldIndex();
+	unsigned int getCurrentWorldIndex() { return currentWorld; }
+
+	//Get the number of registered worlds.
+	unsigned int getNumWorlds() { return worlds.size(); }
+
+        //Get a pointer to the given world.
+        World *getWorldAt(unsigned int i) { return worlds[i]; }
 
 	//------ Singleton functions ------------------------------
 	
