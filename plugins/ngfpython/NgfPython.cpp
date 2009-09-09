@@ -49,6 +49,7 @@ namespace NGF { namespace Python {
 		    .def("hasFlag", &PythonObjectConnector::hasFlag)
 		    .def("removeFlag", &PythonObjectConnector::removeFlag)
 		    .def("getFlags", &PythonObjectConnector::getFlags)
+		    .def("getProperty", &PythonObjectConnector::getProperty)
 		    ;
 
 	    //--- Ogre bindings ----------------------------------------------------
