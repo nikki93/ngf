@@ -38,7 +38,7 @@
 #define NGF_MESSAGE(name, ...) (NGF::Message( name ), ##__VA_ARGS__)
 
 //For consistency with 'NGF_NO_REPLY', because 'return boost::any(something)' looks different.
-#define NGF_SEND_REPLY(arg) return boost::any(arg)
+#define NGF_SEND_REPLY return boost::any
 
 //For 'void messages'.
 #define NGF_NO_REPLY() return boost::any()

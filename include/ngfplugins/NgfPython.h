@@ -208,20 +208,23 @@ class PythonObjectConnector
 //Macros for beginning or ending method or property declarations or implementations.
 //These macros make the enums with a 'pm_' prefix for methods, 'pget_' prefix for
 //get-methods, and 'pset_' prefix for set methods. Braces are added by the user.
-#define NGF_PY_BEGIN_DECL(classnm)                                                         \
-	py::object pythonMethod(Ogre::String name, py::object args);                       \
+#define NGF_PY_BEGIN_DECL(classnm)                                                             \
+	py::object pythonMethod(Ogre::String name, py::object args);                           \
 	enum
-#define NGF_PY_METHOD_DECL(pyname)                                                         \
+#define NGF_PY_METHOD_DECL(pyname)                                                             \
 	pm_##pyname,                                                               
-#define NGF_PY_PROPERTY_DECL(pyname)                                                       \
-	pget_##pyname,                                                                     \
+#define NGF_PY_PROPERTY_DECL(pyname)                                                           \
+	pget_##pyname,                                                                         \
 	pset_##pyname,
-#define NGF_PY_END_DECL                                                                    \
+#define NGF_PY_END_DECL                                                                        \
 	;
 
 //Macros for declaring or implementing methods or properties. They rely on the enums.
 //'NGF_PY_PROPERTY_IMPL' saves you from having to mess with the get and set methods,
-//properties act like normal variables.
+//properties act like normal methods. Also prints an error message if the message 
+//wasn't found.
+//
+//NOTE: You must end each method with atleast a 'NGF_PY_RETURN()' return value.
 #define NGF_PY_BEGIN_IMPL(classnm)                                                             \
 	py::object classnm::pythonMethod(Ogre::String NGF_name, py::object args)               \
 	{                                                                                      \
@@ -248,6 +251,9 @@ class PythonObjectConnector
 #define NGF_PY_END_IMPL                                                                        \
 		}                                                                              \
 	    }                                                                                  \
+        py::exec(("print \"Specified GameObject does not have a '" + NGF_name + "' method!\"") \
+                    .c_str(), NGF::Python::PythonManager::getSingleton().getMainNamespace(),   \
+                    NGF::Python::PythonManager::getSingleton().getMainNamespace());            \
 	    return py::object();                                                               \
 	}
 #define NGF_PY_END_IMPL_BASE(baseClass)                                                        \

@@ -36,12 +36,7 @@ namespace NGF { namespace Bullet {
     //----------------------------------------------------------------------------------   
     BulletGameObject* fromBulletObject(btCollisionObject *physic)
     {
-        void *usr = physic->getUserPointer();
-
-        if (!usr)
-            return 0;
-
-        return (BulletGameObject*) usr;
+        return (BulletGameObject*) (physic->getUserPointer());
     }
     //----------------------------------------------------------------------------------   
     bool _contactAdded(btManifoldPoint& cp, const btCollisionObject* colObj0, 

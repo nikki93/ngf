@@ -9,6 +9,8 @@ Tooltip: 'Exports a level to NGF format'
 
 import Blender
 
+#This script could be a lot better, I'm not very good at Blender-Python programming.
+
 def write(filename):
     out = file(filename, "w")
 

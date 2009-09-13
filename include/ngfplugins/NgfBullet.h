@@ -6,6 +6,9 @@
  *    Description:  NGF-Bullet connection. Allows BulletGameObjects to be notified of
  *                  Bullet collision events.
  *
+ *                  NOTE: Bullet's 'gContactAddedCallback' is overwritten for
+ *                        callbacks.
+ *
  *        Version:  1.0
  *        Created:  02/27/2009 11:40:53 PM
  *

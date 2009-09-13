@@ -29,27 +29,30 @@ namespace NGF { namespace Python {
 
     BOOST_PYTHON_MODULE(Ngf)
     {
+            //Docstring settings.
+            py::docstring_options doc_options(true, true, false);
+
 	    //Bind some non-class stuff.		
-	    py::def("createObject", &PythonManager::_createObject);
-	    py::def("destroyObject", &PythonManager::_destroyObject);
-	    py::def("_print", &PythonManager::_print);
+	    py::def("createObject", &PythonManager::_createObject, "createObject(type,name,pos,rot,props)");
+	    py::def("destroyObject", &PythonManager::_destroyObject, "destroyObject(obj)");
+	    py::def("_print", &PythonManager::_print, "<internal stuff>");
 
 	    PythonObjectConnectorPtr (*getObjectStr) (std::string) = &PythonManager::_getObject;
-	    py::def("getObject", getObjectStr);
+	    py::def("getObject", getObjectStr, "getObject(name)\n      or\ngetObject(id)");
 	    PythonObjectConnectorPtr (*getObjectID) (int) = &PythonManager::_getObject;
 	    py::def("getObject", getObjectID);
 
 	    //Bind our NGF connector.
 	    py::class_<PythonObjectConnector, PythonObjectConnectorPtr >("GameObjectConnector", py::no_init)
 		    .def_readwrite("locals", &PythonObjectConnector::mLocals)
-		    .def("method", &PythonObjectConnector::method)
-		    .def("getID", &PythonObjectConnector::getID)
-		    .def("getName", &PythonObjectConnector::getName)
-		    .def("addFlag", &PythonObjectConnector::addFlag)
-		    .def("hasFlag", &PythonObjectConnector::hasFlag)
-		    .def("removeFlag", &PythonObjectConnector::removeFlag)
-		    .def("getFlags", &PythonObjectConnector::getFlags)
-		    .def("getProperty", &PythonObjectConnector::getProperty)
+		    .def("method", &PythonObjectConnector::method, "<internal stuff>")
+		    .def("getID", &PythonObjectConnector::getID, "getID()")
+		    .def("getName", &PythonObjectConnector::getName, "getName()")
+		    .def("addFlag", &PythonObjectConnector::addFlag, "addFlag(flag)")
+		    .def("hasFlag", &PythonObjectConnector::hasFlag, "hasFlag(flag)")
+		    .def("removeFlag", &PythonObjectConnector::removeFlag, "removeFlag(flag)")
+		    .def("getFlags", &PythonObjectConnector::getFlags, "getFlags()")
+		    .def("getProperty", &PythonObjectConnector::getProperty, "getProperty(name, index, default)")
 		    ;
 
 	    //--- Ogre bindings ----------------------------------------------------
