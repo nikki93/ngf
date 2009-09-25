@@ -16,11 +16,10 @@
 #ifndef __NGF_PYTHON_H__
 #define __NGF_PYTHON_H__
 
-//Remember to #include Python yourself!
-
 #include <Ogre.h> //Change this to only include specific headers when done.
 #include <Ngf.h>
 
+#include <python2.6/Python.h>
 #include <boost/python.hpp>
 #include <boost/shared_ptr.hpp>
 
