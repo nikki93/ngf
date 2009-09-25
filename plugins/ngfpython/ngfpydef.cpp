@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
     "%define lookup-function-name Lookup\n"
     "%language=C++\n"
     "%readonly-tables\n"
-    "%switch=1\n"
+    //"%switch=1\n"
     "%enum\n"
     "%struct-type\n"
     "struct PythonMethod\n"
