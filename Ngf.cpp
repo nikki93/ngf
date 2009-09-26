@@ -855,7 +855,7 @@ namespace NGF {
                                         //(Get next character)
                                         char *old = (buffPtr - 1);
                                         ch = *buffPtr++;
-                                        while (ch == ' ' || ch == 9) {	//Skip leading spaces / tabs
+                                        while (ch == '\r' || ch == '\n' || ch == ' ' || ch == 9) {	//Skip any other stuff.
                                                 ch = *buffPtr++;
                                         }
 
