@@ -15,7 +15,7 @@
 
 #include "ngfplugins/NgfSerialisation.h"
 
-#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/map.hpp>
 #include <fstream>
@@ -41,7 +41,7 @@ namespace NGF { namespace Serialisation {
             //Serialise mRecords (a vector of GameObjectRecords), effectively saving
             //all GameObject information.
             std::ofstream ofs(filename.c_str());
-            boost::archive::binary_oarchive oa(ofs);
+            boost::archive::text_oarchive oa(ofs);
             oa << mRecords;
     }
     //----------------------------------------------------------------------------------   
@@ -52,7 +52,7 @@ namespace NGF { namespace Serialisation {
             {
                     //Load back the saved information into mRecords.
                     std::ifstream ifs(filename.c_str());
-                    boost::archive::binary_iarchive ia(ifs);
+                    boost::archive::text_iarchive ia(ifs);
                     ia >> mRecords;
             }
 

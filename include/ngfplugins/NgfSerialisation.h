@@ -18,7 +18,7 @@
 
 #include <Ogre.h> //Change this to only include specific headers when done.
 #include <Ngf.h>
-#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
 
 namespace NGF { namespace Serialisation {
 
