@@ -413,6 +413,21 @@ namespace NGF {
 		    OGRE_EXCEPT(Ogre::Exception::ERR_INVALIDPARAMS, "Bad world index given", "NGF::WorldManager::gotoWorld()");
 	    }
     }
+    //----------------------------------------------------------------------------------
+    void WorldManager::removeWorld(unsigned int worldNumber)
+    {
+	    if (worldNumber < worlds.size() && worldNumber != -1)
+	    {
+                if (worldNumber == currentWorld)
+                    previousWorld();
+                delete worlds[worldNumber];
+                worlds.erase(worlds.begin() + worldNumber);
+	    }
+	    else
+	    {
+		    OGRE_EXCEPT(Ogre::Exception::ERR_INVALIDPARAMS, "Bad world index given", "NGF::WorldManager::removeWorld()");
+	    }
+    }
 
 /*
  * =====================================================================================
@@ -729,7 +744,7 @@ namespace NGF {
                 parseBuffEnd = parseBuff + parseBuffLen;
 
                 //Close the stream (it's no longer needed since everything is in parseBuff)
-                stream->close();
+                //stream->close(); //Commented out until ZipDataStream 'double close' problem is fixed.
 
                 //Get first token
                 _nextToken();

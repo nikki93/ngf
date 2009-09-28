@@ -445,7 +445,10 @@ public:
 	unsigned int getNumWorlds() { return worlds.size(); }
 
         //Get a pointer to the given world.
-        World *getWorldAt(unsigned int i) { return worlds[i]; }
+        World *getWorld(unsigned int i) { return worlds[i]; }
+
+        //Remove the world with the given index.
+        void removeWorld(unsigned int worldNumber);
 
 	//------ Singleton functions ------------------------------
 	
