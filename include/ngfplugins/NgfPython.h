@@ -50,6 +50,8 @@ class PythonGameObject : virtual public GameObject
 
 	    py::dict mPythonEvents;
 
+            void _initScript();
+
     public:
 	    PythonGameObject();
 	    virtual ~PythonGameObject();
@@ -67,8 +69,11 @@ class PythonGameObject : virtual public GameObject
 	    //Get the connector.
 	    PythonObjectConnectorPtr getConnector() { return mConnector; }
 
-	    //Sets up the script.
-	    void setScript(Ogre::String script);
+	    //Sets up the script from a string of source code.
+	    void setScriptString(Ogre::String script);
+
+	    //Sets up the script from the name of a code object.
+	    void setScriptCodeObject(Ogre::String codeObjName);
 };
 
 /*

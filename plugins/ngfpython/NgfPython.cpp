@@ -266,13 +266,8 @@ namespace NGF { namespace Python {
 	    mConnector.reset();
     }
     //--------------------------------------------------------------------------------------
-    void PythonGameObject::setScript(Ogre::String script)
+    void PythonGameObject::_initScript()
     {
-            //Clear events, run script.
-            mPythonEvents.clear();
-            if (script != "") 
-                    runString(script);
-
             //Store the events.
             NGF_PY_SAVE_EVENT(init);
             NGF_PY_SAVE_EVENT(create);
@@ -280,6 +275,26 @@ namespace NGF { namespace Python {
             NGF_PY_SAVE_EVENT(utick);
             NGF_PY_SAVE_EVENT(ptick);
             NGF_PY_SAVE_EVENT(collide);
+    }
+    //--------------------------------------------------------------------------------------
+    void PythonGameObject::setScriptString(Ogre::String script)
+    {
+            mPythonEvents.clear();
+            //Run string.
+            if (script != "") 
+                    runString(script);
+
+            _initScript();
+    }
+    //--------------------------------------------------------------------------------------
+    void PythonGameObject::setScriptCodeObject(Ogre::String codeObjName)
+    {
+            mPythonEvents.clear();
+            //Exec code object.
+            if (codeObjName != "")
+                runString("exec(" + codeObjName + ")");
+
+            _initScript();
     }
     //--------------------------------------------------------------------------------------
     void PythonGameObject::runString(Ogre::String script)
@@ -398,7 +413,14 @@ namespace NGF { namespace Python {
 	    for(; iter != end; ++iter)
 	    {
 		    cur = *iter;
-		    props.addProperty(py::extract<std::string>(cur[0]), py::extract<std::string>(cur[1]));
+                    Ogre::String name = py::extract<std::string>(cur[0]);
+                    Ogre::String vals = py::extract<std::string>(cur[1]);
+
+                    Ogre::String sep = " ";
+                    if (!strncmp(vals.c_str(), "##", 2))
+                        sep = "";
+
+		    props.addProperty(name, vals, sep);
 	    }
 
 	    GameObject *obj = GameObjectManager::getSingleton().createObject(type, pos, rot, props, name);
