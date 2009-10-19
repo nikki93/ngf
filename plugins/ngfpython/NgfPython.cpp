@@ -14,12 +14,15 @@
  */
 
 #include "ngfplugins/NgfPython.h"
+
 #include <boost/python/stl_iterator.hpp>
 
 template<> NGF::Python::PythonManager* Ogre::Singleton<NGF::Python::PythonManager>::ms_Singleton = 0;
 NGF::Python::PythonManager::PrintFunc NGF::Python::PythonManager::mPrinter = 0;
 
 namespace NGF { namespace Python {
+
+    static void runPycFile(FILE *fp, const char *filename);
 
 /*
  * =============================================================================================
@@ -246,6 +249,34 @@ namespace NGF { namespace Python {
             quaternionClass.attr("ZERO") = Ogre::Quaternion::ZERO;
             quaternionClass.attr("IDENTITY") = Ogre::Quaternion::IDENTITY;
             quaternionClass.attr("ms_fEpsilon") = Ogre::Quaternion::ms_fEpsilon;
+
+            //Ogre::ColourValue
+            py::object colourValueClass = py::class_<Ogre::ColourValue>("ColourValue", py::init<>())
+                .def(py::init<float, float, float>())
+                .def(py::init<float, float, float, float>())
+
+                .def("getAsRGBA", &Ogre::ColourValue::getAsRGBA)
+                .def("getAsRGBA", &Ogre::ColourValue::getAsRGBA)
+                .def("getAsARGB", &Ogre::ColourValue::getAsARGB)
+                .def("getAsBGRA", &Ogre::ColourValue::getAsBGRA)
+                .def("getAsABGR", &Ogre::ColourValue::getAsABGR)
+                .def("setAsRGBA", &Ogre::ColourValue::setAsRGBA)
+                .def("setAsARGB", &Ogre::ColourValue::setAsARGB)
+                .def("setAsBGRA", &Ogre::ColourValue::setAsBGRA)
+                .def("setAsABGR", &Ogre::ColourValue::setAsABGR)
+                .def("setHSB", &Ogre::ColourValue::setHSB)
+                .def("getHSB", &Ogre::ColourValue::getHSB)
+
+                .def("saturate", &Ogre::ColourValue::saturate)
+                .def("saturateCopy", &Ogre::ColourValue::saturateCopy)
+                ;
+
+            colourValueClass.attr("ZERO") = Ogre::ColourValue::ZERO;
+            colourValueClass.attr("Black") = Ogre::ColourValue::Black;
+            colourValueClass.attr("White") = Ogre::ColourValue::White;
+            colourValueClass.attr("Red") = Ogre::ColourValue::Red;
+            colourValueClass.attr("Green") = Ogre::ColourValue::Green;
+            colourValueClass.attr("Blue") = Ogre::ColourValue::Blue;
     }
 
 /*
@@ -277,9 +308,8 @@ namespace NGF { namespace Python {
             NGF_PY_SAVE_EVENT(collide);
     }
     //--------------------------------------------------------------------------------------
-    void PythonGameObject::setScriptString(Ogre::String script)
+    void PythonGameObject::setScriptString(const Ogre::String &script)
     {
-            mPythonEvents.clear();
             //Run string.
             if (script != "") 
                     runString(script);
@@ -287,12 +317,45 @@ namespace NGF { namespace Python {
             _initScript();
     }
     //--------------------------------------------------------------------------------------
-    void PythonGameObject::setScriptCodeObject(Ogre::String codeObjName)
+    void PythonGameObject::setScriptCodeObject(const Ogre::String &codeObjName)
     {
-            mPythonEvents.clear();
-            //Exec code object.
+            //Run a code object.
             if (codeObjName != "")
-                runString("exec(" + codeObjName + ")");
+                    runString("exec(" + codeObjName + ")");
+
+            _initScript();
+    }
+    //--------------------------------------------------------------------------------------
+    void PythonGameObject::setScriptFile(const Ogre::String &filename, const Ogre::String &resourceGroup)
+    {
+            //Ogre::String filename = "Prefab_Door.pyc";
+
+            //Run code from file in Ogre resource locations.
+            if (filename != "")
+            {
+                    Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource(filename, resourceGroup);
+                    size_t size = stream->size();
+
+                    void *data = malloc(size);
+                    stream->read(data, size);
+
+                    //If .pyc/.pyo, run .pyc/.pyo, else run .py.
+                    char last = *(filename.rbegin());
+                    if ((last == 'c') || (last == 'o' && (Py_OptimizeFlag = 1)))
+                    {
+                            FILE *fp = fmemopen(data, size, "rb");
+                            runPycFile(fp, filename.c_str());
+                            fclose(fp);
+                    }
+                    else
+                    {
+                            FILE *fp = fmemopen(data, size, "r");
+                            PyRun_AnyFile(fp, filename.c_str());
+                            fclose(fp);
+                    }
+
+                    free(data);
+            }
 
             _initScript();
     }
@@ -308,6 +371,43 @@ namespace NGF { namespace Python {
 		    std::cerr << "Error loading script:";
 		    PyErr_Print();
 	    }
+    }
+
+    static void runPycFile(FILE *fp, const char *filename)
+    {
+            PyCodeObject *co;
+            PyObject *v;
+            long magic;
+
+            magic = PyMarshal_ReadLongFromFile(fp);
+            if (magic != PyImport_GetMagicNumber()) 
+            {
+                    char *err;
+                    sprintf(err, "Bad magic number in file '%s'!", filename);
+                    PyErr_SetString(PyExc_RuntimeError, err);
+
+                    return;
+            }
+
+            (void) PyMarshal_ReadLongFromFile(fp);
+            v = PyMarshal_ReadObjectFromFile(fp);
+
+            if (!v || !PyCode_Check(v)) 
+            {
+                    Py_XDECREF(v);
+
+                    char *err;
+                    sprintf(err, "Bad code object in file '%s'!", filename);
+                    PyErr_SetString(PyExc_RuntimeError, err);
+
+                    return;
+            }
+
+            co = (PyCodeObject *)v;
+            PyObject *main = PythonManager::getSingleton().getMainNamespace().ptr();
+            PyEval_EvalCode(co, main, main);
+
+            Py_DECREF(co);
     }
 
 /*

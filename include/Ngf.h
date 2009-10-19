@@ -32,7 +32,7 @@
 
 //Register a GameObject type. For easy registration if you're too lazy to type both the
 //typename and a string. ;-)
-#define NGF_REGISTER_OBJECT_TYPE(type) NGF::GameObjectFactory::getSingleton().registerObjectType< type >( #type )
+#define NGF_REGISTER_OBJECT_TYPE(type) NGF::GameObjectFactory::getSingleton().registerObjectType< class type >( #type )
 
 //Allows NGF_MESSAGE(MSG_SETTRANSFORM, Vector3(10,20,30), Quaternion(1,2,3,4))
 #define NGF_MESSAGE(name, ...) (NGF::Message( name ), ##__VA_ARGS__)

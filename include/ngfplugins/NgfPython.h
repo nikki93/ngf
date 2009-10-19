@@ -20,6 +20,9 @@
 #include <Ngf.h>
 
 #include <python2.6/Python.h>
+#include <python2.6/marshal.h>
+#include <python2.6/import.h>
+#include <python2.6/pydebug.h>
 #include <boost/python.hpp>
 #include <boost/shared_ptr.hpp>
 
@@ -70,10 +73,13 @@ class PythonGameObject : virtual public GameObject
 	    PythonObjectConnectorPtr getConnector() { return mConnector; }
 
 	    //Sets up the script from a string of source code.
-	    void setScriptString(Ogre::String script);
+	    void setScriptString(const Ogre::String &script);
 
-	    //Sets up the script from the name of a code object.
-	    void setScriptCodeObject(Ogre::String codeObjName);
+	    //Sets up the script from the name of a code object in the main module.
+	    void setScriptCodeObject(const Ogre::String &codeObjName);
+
+	    //Sets up the script from a file.
+	    void setScriptFile(const Ogre::String &filename, const Ogre::String &resourceGroup);
 };
 
 /*
@@ -277,5 +283,37 @@ class PythonObjectConnector
 #define NGF_PY_METHOD_GPERF(classnm,pyname) classnm :: pm_##pyname
 #define NGF_PY_GET_GPERF(classnm,pyname) classnm :: pget_##pyname
 #define NGF_PY_SET_GPERF(classnm,pyname) classnm :: pset_##pyname
+
+//To extract parameters from the 'args' tuple in a Python method.
+#define NGF_PY_METHOD_PARAMS(n, ...)                                                                               \
+        NGF_PY_METHOD_PARAMS_##n(__VA_ARGS__)
+
+#define NGF_PY_METHOD_PARAMS_1(type0, name0)                                                                       \
+        type0 name0 = py::extract<type0>(args[0]);
+#define NGF_PY_METHOD_PARAMS_2(type0, name0, type1, name1)                                                         \
+        type0 name0 = py::extract<type0>(args[0]);                                                                 \
+        type1 name1 = py::extract<type1>(args[1]);
+#define NGF_PY_METHOD_PARAMS_3(type0, name0, type1, name1, type2, name2)                                           \
+        type0 name0 = py::extract<type0>(args[0]);                                                                 \
+        type1 name1 = py::extract<type1>(args[1]);                                                                 \
+        type2 name2 = py::extract<type2>(args[2]);
+#define NGF_PY_METHOD_PARAMS_4(type0, name0, type1, name1, type2, name2, type3, name3)                             \
+        type0 name0 = py::extract<type0>(args[0]);                                                                 \
+        type1 name1 = py::extract<type1>(args[1]);                                                                 \
+        type2 name2 = py::extract<type2>(args[2]);                                                                 \
+        type3 name3 = py::extract<type3>(args[3]);
+#define NGF_PY_METHOD_PARAMS_5(type0, name0, type1, name1, type2, name2, type3, name3, type4, name4)               \
+        type0 name0 = py::extract<type0>(args[0]);                                                                 \
+        type1 name1 = py::extract<type1>(args[1]);                                                                 \
+        type2 name2 = py::extract<type2>(args[2]);                                                                 \
+        type3 name3 = py::extract<type3>(args[3]);                                                                 \
+        type4 name4 = py::extract<type4>(args[4]);
+#define NGF_PY_METHOD_PARAMS_6(type0, name0, type1, name1, type2, name2, type3, name3, type4, name4, type5, name5) \
+        type0 name0 = py::extract<type0>(args[0]);                                                                 \
+        type1 name1 = py::extract<type1>(args[1]);                                                                 \
+        type2 name2 = py::extract<type2>(args[2]);                                                                 \
+        type3 name3 = py::extract<type3>(args[3]);                                                                 \
+        type4 name4 = py::extract<type4>(args[4]);                                                                 \
+        type5 name5 = py::extract<type5>(args[5]);
 
 #endif //#ifndef __NGF_PYTHON_H__
