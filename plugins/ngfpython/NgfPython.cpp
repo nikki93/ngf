@@ -23,6 +23,9 @@ NGF::Python::PythonManager::PrintFunc NGF::Python::PythonManager::mPrinter = 0;
 namespace NGF { namespace Python {
 
     static void runPycFile(FILE *fp, const char *filename);
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+    static FILE *fmemopen (void *buf, size_t size, const char *opentype);
+#endif
 
 /*
  * =============================================================================================
@@ -413,7 +416,7 @@ found:
             magic = PyMarshal_ReadLongFromFile(fp);
             if (magic != PyImport_GetMagicNumber()) 
             {
-                    char *err;
+                    char err[128];
                     sprintf(err, "Bad magic number in file '%s'!", filename);
                     PyErr_SetString(PyExc_RuntimeError, err);
 
@@ -427,7 +430,7 @@ found:
             {
                     Py_XDECREF(v);
 
-                    char *err;
+                    char err[128];
                     sprintf(err, "Bad code object in file '%s'!", filename);
                     PyErr_SetString(PyExc_RuntimeError, err);
 
@@ -439,6 +442,15 @@ found:
             PyEval_EvalCode(co, main, main);
 
             Py_DECREF(co);
+    }
+
+	static FILE *fmemopen (void *buf, size_t size, const char *opentype)
+    {
+            FILE *f = tmpfile();
+            fwrite(buf, 1, size, f);
+            rewind(f);
+
+            return f;
     }
 
 /*
