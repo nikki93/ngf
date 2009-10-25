@@ -326,14 +326,45 @@ namespace NGF { namespace Python {
             _initScript();
     }
     //--------------------------------------------------------------------------------------
-    void PythonGameObject::setScriptFile(const Ogre::String &filename, const Ogre::String &resourceGroup)
+    void PythonGameObject::setScriptFile(Ogre::String filename, const Ogre::String &resourceGroup)
     {
             //Ogre::String filename = "Prefab_Door.pyc";
 
             //Run code from file in Ogre resource locations.
             if (filename != "")
             {
-                    Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource(filename, resourceGroup);
+                    Ogre::DataStreamPtr stream;
+
+                    for (;;)
+                    {
+                            try
+                            {
+                                    stream = Ogre::ResourceGroupManager::getSingleton().openResource(filename, resourceGroup);
+                                    goto found;
+                            }
+                            catch (...)
+                            {
+                                    //If not found, try other files.
+                                    char last = *(filename.rbegin());
+
+                                    switch (last)
+                                    {
+                                            case 'o':
+                                                    last = 'c';
+                                                    goto found;
+
+                                            case 'c':
+                                                    last = '\0';
+                                                    goto found;
+
+                                            default:
+                                                    OGRE_EXCEPT(Ogre::Exception::ERR_FILE_NOT_FOUND, 
+                                                                    "File " + filename + "not found!", "NGF::Python::PythonGameObject::setScriptFile()");
+                                    }
+                            }
+                    }
+found:
+
                     size_t size = stream->size();
 
                     void *data = malloc(size);

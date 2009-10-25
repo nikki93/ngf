@@ -79,7 +79,7 @@ class PythonGameObject : virtual public GameObject
 	    void setScriptCodeObject(const Ogre::String &codeObjName);
 
 	    //Sets up the script from a file.
-	    void setScriptFile(const Ogre::String &filename, const Ogre::String &resourceGroup);
+	    void setScriptFile(Ogre::String filename, const Ogre::String &resourceGroup);
 };
 
 /*
