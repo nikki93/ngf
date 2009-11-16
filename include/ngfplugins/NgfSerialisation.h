@@ -16,9 +16,12 @@
 #ifndef __NGF_SERIALISATION_H__
 #define __NGF_SERIALISATION_H__
 
+#include <sstream>
+
 #include <Ogre.h> //Change this to only include specific headers when done.
 #include <Ngf.h>
 #include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 
 namespace NGF { namespace Serialisation {
 
@@ -279,6 +282,59 @@ class GameObjectRecord
                 {                                                                              \
                     mTasks.erase(iter);                                                        \
                 }                                                                              \
+            }
+
+//Serialises an STL container, with boost-serialisable element types. You'll have to make sure
+//to #include the boost::serialisation header for the container type (usually
+//'boost/serialization/<type>.hpp', like 'boost/serialization/map.hpp').
+#define NGF_SERIALISE_STL_CONTAINER(var)                                                       \
+            {                                                                                  \
+                std::string var##_str;                                                         \
+                std::stringstream var##_strm(std::stringstream::in | std::stringstream::out);  \
+                                                                                               \
+                NGF_SERIALISE_ON_SAVE                                                          \
+                {                                                                              \
+                    boost::archive::text_oarchive oa(var##_strm);                              \
+                    oa << var;                                                                 \
+                    var##_str = var##_strm.str();                                              \
+                }                                                                              \
+                                                                                               \
+                NGF_SERIALISE_STRING(var##_str);                                               \
+                                                                                               \
+                NGF_SERIALISE_ON_LOAD                                                          \
+                {                                                                              \
+                    var##_strm << var##_str;                                                   \
+                    boost::archive::text_iarchive ia(var##_strm);                              \
+                    ia >> var;                                                                 \
+                }                                                                              \
+            }
+
+//If you're using Ngf::States you can save the state of the state system (pun intended) with
+//this.
+#define NGF_SERIALISE_STATE_SYSTEM()                                                           \
+            std::vector<unsigned int> stateInds;                                               \
+            int currState;                                                                     \
+                                                                                               \
+            NGF_SERIALISE_ON_SAVE                                                              \
+            {                                                                                  \
+                for (std::vector<__State *>::iterator iter = __mStateStack.begin();            \
+                        iter != __mStateStack.end(); ++iter)                                   \
+                    stateInds.push_back((*iter)->getIndex());                                  \
+                                                                                               \
+                currState = mCurrState ? mCurrState->getIndex() : 0;                           \
+            }                                                                                  \
+                                                                                               \
+            NGF_SERIALISE_STL_CONTAINER(stateInds);                                            \
+            NGF_SERIALISE_OGRE(Int, currState);                                                \
+                                                                                               \
+            NGF_SERIALISE_ON_LOAD                                                              \
+            {                                                                                  \
+                __mStateStack.clear();                                                         \
+                for (std::vector<unsigned int>::iterator iter = stateInds.begin();             \
+                        iter != stateInds.end(); ++iter)                                       \
+                    __mStateStack.push_back(NGF_STATES_GET_STATE_FROM_INDEX(*iter));           \
+                                                                                               \
+                mCurrState = currState ? NGF_STATES_GET_STATE_FROM_INDEX(currState) : 0;       \
             }
 
 #endif //#ifndef __NGF_SERIALISATION_H__

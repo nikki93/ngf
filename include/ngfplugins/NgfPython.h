@@ -51,6 +51,7 @@ class PythonGameObject : virtual public GameObject
     protected:
 	    PythonObjectConnectorPtr mConnector;
 
+            friend class PythonObjectConnector;
 	    py::dict mPythonEvents;
 
             void _initScript();
@@ -79,7 +80,7 @@ class PythonGameObject : virtual public GameObject
 	    void setScriptCodeObject(const Ogre::String &codeObjName);
 
 	    //Sets up the script from a file.
-	    void setScriptFile(Ogre::String filename, const Ogre::String &resourceGroup);
+	    void setScriptFile(const Ogre::String &filename, const Ogre::String &resourceGroup);
 };
 
 /*
@@ -145,13 +146,19 @@ class PythonObjectConnector
 	    //A dictionary that 'saves' variables, including 'self' etc.
 	    py::object mLocals;
 
+            //Pickle functions to keep around.
+            const py::object &mPickle;
+            const py::object &mUnpickle;
+
     protected:
 	    PythonGameObject *mObj;
 
     public:
 	    PythonObjectConnector(PythonGameObject *obj)
 		    : mObj(obj),
-		      mLocals(py::dict()) //Make an empty 'locals' dictionary
+		      mLocals(py::dict()), //Make an empty 'locals' dictionary
+                      mPickle(PythonManager::getSingleton().getMainNamespace()["dumps"]),
+                      mUnpickle(PythonManager::getSingleton().getMainNamespace()["loads"])
 	    {
 	    }
 
@@ -188,6 +195,21 @@ class PythonObjectConnector
             std::string getProperty(Ogre::String key, unsigned int index, Ogre::String defaultVal)
             { return mObj->getProperties().getValue(key, index, defaultVal); }
 }; 
+
+/*
+ * =====================================================================================
+ *    Namespace:  Util
+ *
+ *  Description:  Some useful Utility things.
+ * =====================================================================================
+ */
+
+namespace Util {
+
+        //Run Python code from a file picked up by Ogre's resource manager.
+        void runFile(Ogre::String filename, const Ogre::String &resourceGroup);
+
+}
 
 } //namespace Python
 

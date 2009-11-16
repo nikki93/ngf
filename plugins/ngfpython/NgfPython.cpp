@@ -20,12 +20,57 @@
 template<> NGF::Python::PythonManager* Ogre::Singleton<NGF::Python::PythonManager>::ms_Singleton = 0;
 NGF::Python::PythonManager::PrintFunc NGF::Python::PythonManager::mPrinter = 0;
 
-namespace NGF { namespace Python {
+//Some functions used for file-reading.
 
-    static void runPycFile(FILE *fp, const char *filename);
+static void runPycFile(FILE *fp, const char *filename)
+{
+    PyCodeObject *co;
+    PyObject *v;
+    long magic;
+
+    magic = PyMarshal_ReadLongFromFile(fp);
+    if (magic != PyImport_GetMagicNumber()) 
+    {
+            char err[128];
+            sprintf(err, "Bad magic number in file '%s'!", filename);
+            PyErr_SetString(PyExc_RuntimeError, err);
+
+            return;
+    }
+
+    (void) PyMarshal_ReadLongFromFile(fp);
+    v = PyMarshal_ReadObjectFromFile(fp);
+
+    if (!v || !PyCode_Check(v)) 
+    {
+            Py_XDECREF(v);
+
+            char err[128];
+            sprintf(err, "Bad code object in file '%s'!", filename);
+            PyErr_SetString(PyExc_RuntimeError, err);
+
+            return;
+    }
+
+    co = (PyCodeObject *)v;
+    PyObject *main = NGF::Python::PythonManager::getSingleton().getMainNamespace().ptr();
+    PyEval_EvalCode(co, main, main);
+
+    Py_DECREF(co);
+}
+
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-    static FILE *fmemopen (void *buf, size_t size, const char *opentype);
+static FILE *fmemopen (void *buf, size_t size, const char *opentype)
+{
+    FILE *f = tmpfile();
+    fwrite(buf, 1, size, f);
+    rewind(f);
+
+    return f;
+}
 #endif
+
+namespace NGF { namespace Python {
 
 /*
  * =============================================================================================
@@ -309,6 +354,8 @@ namespace NGF { namespace Python {
             NGF_PY_SAVE_EVENT(utick);
             NGF_PY_SAVE_EVENT(ptick);
             NGF_PY_SAVE_EVENT(collide);
+            NGF_PY_SAVE_EVENT(save);
+            NGF_PY_SAVE_EVENT(load);
     }
     //--------------------------------------------------------------------------------------
     void PythonGameObject::setScriptString(const Ogre::String &script)
@@ -329,67 +376,11 @@ namespace NGF { namespace Python {
             _initScript();
     }
     //--------------------------------------------------------------------------------------
-    void PythonGameObject::setScriptFile(Ogre::String filename, const Ogre::String &resourceGroup)
+    void PythonGameObject::setScriptFile(const Ogre::String &filename, const Ogre::String &resourceGroup)
     {
-            //Ogre::String filename = "Prefab_Door.pyc";
-
             //Run code from file in Ogre resource locations.
             if (filename != "")
-            {
-                    Ogre::DataStreamPtr stream;
-
-                    for (;;)
-                    {
-                            try
-                            {
-                                    stream = Ogre::ResourceGroupManager::getSingleton().openResource(filename, resourceGroup);
-                                    goto found;
-                            }
-                            catch (...)
-                            {
-                                    //If not found, try other files.
-                                    char last = *(filename.rbegin());
-
-                                    switch (last)
-                                    {
-                                            case 'o':
-                                                    last = 'c';
-                                                    goto found;
-
-                                            case 'c':
-                                                    last = '\0';
-                                                    goto found;
-
-                                            default:
-                                                    OGRE_EXCEPT(Ogre::Exception::ERR_FILE_NOT_FOUND, 
-                                                                    "File " + filename + "not found!", "NGF::Python::PythonGameObject::setScriptFile()");
-                                    }
-                            }
-                    }
-found:
-
-                    size_t size = stream->size();
-
-                    void *data = malloc(size);
-                    stream->read(data, size);
-
-                    //If .pyc/.pyo, run .pyc/.pyo, else run .py.
-                    char last = *(filename.rbegin());
-                    if ((last == 'c') || (last == 'o' && (Py_OptimizeFlag = 1)))
-                    {
-                            FILE *fp = fmemopen(data, size, "rb");
-                            runPycFile(fp, filename.c_str());
-                            fclose(fp);
-                    }
-                    else
-                    {
-                            FILE *fp = fmemopen(data, size, "r");
-                            PyRun_AnyFile(fp, filename.c_str());
-                            fclose(fp);
-                    }
-
-                    free(data);
-            }
+                    Util::runFile(filename, resourceGroup);
 
             _initScript();
     }
@@ -405,52 +396,6 @@ found:
 		    std::cerr << "Error loading script:";
 		    PyErr_Print();
 	    }
-    }
-
-    static void runPycFile(FILE *fp, const char *filename)
-    {
-            PyCodeObject *co;
-            PyObject *v;
-            long magic;
-
-            magic = PyMarshal_ReadLongFromFile(fp);
-            if (magic != PyImport_GetMagicNumber()) 
-            {
-                    char err[128];
-                    sprintf(err, "Bad magic number in file '%s'!", filename);
-                    PyErr_SetString(PyExc_RuntimeError, err);
-
-                    return;
-            }
-
-            (void) PyMarshal_ReadLongFromFile(fp);
-            v = PyMarshal_ReadObjectFromFile(fp);
-
-            if (!v || !PyCode_Check(v)) 
-            {
-                    Py_XDECREF(v);
-
-                    char err[128];
-                    sprintf(err, "Bad code object in file '%s'!", filename);
-                    PyErr_SetString(PyExc_RuntimeError, err);
-
-                    return;
-            }
-
-            co = (PyCodeObject *)v;
-            PyObject *main = PythonManager::getSingleton().getMainNamespace().ptr();
-            PyEval_EvalCode(co, main, main);
-
-            Py_DECREF(co);
-    }
-
-	static FILE *fmemopen (void *buf, size_t size, const char *opentype)
-    {
-            FILE *f = tmpfile();
-            fwrite(buf, 1, size, f);
-            rewind(f);
-
-            return f;
     }
 
 /*
@@ -529,6 +474,9 @@ found:
 		    " 	return (self.valueDegrees())\n"
 		    "Ngf.Degree.__getinitargs__ = tmp_Degree__getinitargs__\n"
 		    "del tmp_Degree__getinitargs__\n\n"
+
+                    //For easy pickle access from a single function.
+		    "from cPickle import dumps, loads\n\n"
 
 		    ,mMainNamespace,mMainNamespace
 		    );
@@ -614,47 +562,83 @@ found:
     //--------------------------------------------------------------------------------------
     Ogre::String PythonObjectConnector::dumpLocals()
     {
-            py::object &main = PythonManager::getSingleton().getMainNamespace();
+            //If the object returns a dict, serialise that. Else serialise locals.
+            py::object ret = mObj->mPythonEvents["save"](mObj->getConnector());
 
-            //Python stuff is best done in python. ;-)
-            py::exec(
-                            "import cPickle\n\n"
-
-                            "def dump(obj):\n"
-                            " 	return cPickle.dumps(obj.locals)\n",
-                            main, main
-                    );
-            Ogre::String dump = py::extract<Ogre::String>(main["dump"](this));
-
-            //Clean up after ourselves!
-            py::exec(
-                            "del dump\n",
-                            main, main
-                    );
-
-            return dump;
+            if (ret)
+                return py::extract<Ogre::String>(PythonManager::getSingleton().getMainNamespace()["dumps"](ret));
+            else
+                return py::extract<Ogre::String>(PythonManager::getSingleton().getMainNamespace()["dumps"](mLocals));
     }
     //--------------------------------------------------------------------------------------
     void PythonObjectConnector::loadLocals(Ogre::String str)
     {
-            py::object &main = PythonManager::getSingleton().getMainNamespace();
+            //Try using the object to load itself.
+            py::object dict = PythonManager::getSingleton().getMainNamespace()["loads"](str);
+            py::object ret = mObj->mPythonEvents["load"](mObj->getConnector(), dict);
 
-            //Python stuff is best done in python. ;-)
-            py::exec(
-                            "import cPickle\n\n"
-
-                            "def load(str):\n"
-                            " 	return cPickle.loads(str)\n",
-                            main, main
-                    );
-            mLocals = main["load"](str);
-
-            //Clean up after ourselves!
-            py::exec(
-                            "del load\n",
-                            main, main
-                    );
+            if (!ret)
+                    mLocals = dict;
     }
+
+/*
+ * =============================================================================================
+ * NGF::Python::Util
+ * =============================================================================================
+ */
+
+namespace Util {
+
+        void runFile(Ogre::String filename, const Ogre::String &resourceGroup)
+        {
+                Ogre::ResourceGroupManager &rmgr = Ogre::ResourceGroupManager::getSingleton();
+
+                //If .pyo not found, .pyc, and if .pyc not found, .py.
+                Ogre::String::iterator iter = filename.end() - 1; //Could've used .rbegin(), but .erase() needs 'normal iterator'.
+                char &last = *iter;
+                switch (last)
+                {
+                        case 'o':
+                                if (rmgr.resourceExists(resourceGroup, filename))
+                                        break;
+                                last = 'c';
+                        case 'c':
+                                if (rmgr.resourceExists(resourceGroup, filename))
+                                        break;
+                                last = '\0';
+                                //filename.erase(iter);
+                        default:
+                                if (rmgr.resourceExists(resourceGroup, filename))
+                                        break;
+                                OGRE_EXCEPT(Ogre::Exception::ERR_FILE_NOT_FOUND,
+                                                "File " + filename + "not found!", 
+                                                "NGF::Python::PythonGameObject::setScriptFile()");
+                }
+
+                Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource(filename, resourceGroup);
+                size_t size = stream->size();
+
+                void *data = malloc(size);
+                stream->read(data, size);
+
+                //If .pyc/.pyo, run .pyc/.pyo, else run .py.
+                if ((last == 'c') || (last == 'o' && (Py_OptimizeFlag = 1)))
+                {
+                        FILE *fp = fmemopen(data, size, "rb");
+                        runPycFile(fp, filename.c_str());
+                        fclose(fp);
+                }
+                else
+                {
+                        FILE *fp = fmemopen(data, size, "r");
+                        PyRun_AnyFile(fp, filename.c_str());
+                        fclose(fp);
+                }
+
+                free(data);
+        }
+
+}
 
 } //namespace Python
 
