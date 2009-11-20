@@ -98,7 +98,7 @@
 #define NGF_STATES_PUSH_STATE(state)                                                      \
         do                                                                             \
         {                                                                              \
-            if(__mStateStack.empty())                                                  \
+            if(mCurrState && __mStateStack.empty())                                                  \
                 __mStateStack.push_back(mCurrState);                                        \
             __mStateStack.push_back(__mState_##state);                                      \
             NGF_STATES_SWITCH_STATE(state);                                            \

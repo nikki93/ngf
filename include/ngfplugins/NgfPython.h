@@ -145,6 +145,7 @@ class PythonObjectConnector
     public:
 	    //A dictionary that 'saves' variables, including 'self' etc.
 	    py::object mLocals;
+	    py::object mNonPickle;
 
             //Pickle functions to keep around.
             const py::object &mPickle;
@@ -157,6 +158,7 @@ class PythonObjectConnector
 	    PythonObjectConnector(PythonGameObject *obj)
 		    : mObj(obj),
 		      mLocals(py::dict()), //Make an empty 'locals' dictionary
+		      mNonPickle(py::dict()), //Make an empty 'locals' dictionary
                       mPickle(PythonManager::getSingleton().getMainNamespace()["dumps"]),
                       mUnpickle(PythonManager::getSingleton().getMainNamespace()["loads"])
 	    {

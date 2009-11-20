@@ -96,6 +96,7 @@ namespace NGF { namespace Python {
 	    //Bind our NGF connector.
 	    py::class_<PythonObjectConnector, PythonObjectConnectorPtr >("GameObjectConnector", py::no_init)
 		    .def_readwrite("locals", &PythonObjectConnector::mLocals)
+		    .def_readwrite("nonPickle", &PythonObjectConnector::mNonPickle)
 		    .def("method", &PythonObjectConnector::method, "<internal stuff>")
 		    .def("getID", &PythonObjectConnector::getID, "getID()")
 		    .def("getName", &PythonObjectConnector::getName, "getName()")
@@ -428,6 +429,8 @@ namespace NGF { namespace Python {
 		    "def tmp_GameObjectConnector__getattr__(self, name):\n"
 		    " 	if (name[:2] == \"m_\"):\n"
 		    " 		return self.locals[name]\n"
+		    " 	elif (name[:2] == \"v_\"):\n"
+		    " 		return self.nonPickle[name]\n"
 		    " 	elif (name[:2] == \"p_\"):\n"
 		    " 		return self.method(\"get_\" + name [2:], 0)\n"
 		    " 	return lambda *args: self.method(name, args)\n\n"
@@ -435,6 +438,8 @@ namespace NGF { namespace Python {
 		    "def tmp_GameObjectConnector__setattr__(self, name, value):\n"
 		    " 	if (name[:2] == \"m_\"):\n"
 		    " 		self.locals[name] = value\n"
+		    " 	if (name[:2] == \"v_\"):\n"
+		    " 		self.nonPickle[name] = value\n"
 		    " 	elif (name[:2] == \"p_\"):\n"
 		    " 		self.method(\"set_\" + name[2:], (value,))\n\n"
 
@@ -556,8 +561,8 @@ namespace NGF { namespace Python {
     PythonObjectConnector::~PythonObjectConnector() 
     {
             //Clears the locals.
-            py::object main = PythonManager::getSingleton().getMainNamespace();
-            mLocals = py::eval("0", main, main);
+            //py::object main = PythonManager::getSingleton().getMainNamespace();
+            //mLocals = py::eval("0", main, main);
     }
     //--------------------------------------------------------------------------------------
     Ogre::String PythonObjectConnector::dumpLocals()
