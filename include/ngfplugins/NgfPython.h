@@ -66,7 +66,7 @@ class PythonGameObject : virtual public GameObject
 	    { return py::object("base"); }
 
 	    //--- Some helper functions --------------------------------------------
-
+            
 	    //Makes 'self' etc. work.
 	    void runString(Ogre::String script);
 
@@ -150,6 +150,7 @@ class PythonObjectConnector
             //Pickle functions to keep around.
             const py::object &mPickle;
             const py::object &mUnpickle;
+            //py::object &mObjPythonEvents;
 
     protected:
 	    PythonGameObject *mObj;
@@ -161,6 +162,7 @@ class PythonObjectConnector
 		      mNonPickle(py::dict()), //Make an empty 'locals' dictionary
                       mPickle(PythonManager::getSingleton().getMainNamespace()["dumps"]),
                       mUnpickle(PythonManager::getSingleton().getMainNamespace()["loads"])
+                      //mObjPythonEvents(obj->mPythonEvents)
 	    {
 	    }
 
@@ -196,6 +198,8 @@ class PythonObjectConnector
 	    { return mObj->getFlags(); }
             std::string getProperty(Ogre::String key, unsigned int index, Ogre::String defaultVal)
             { return mObj->getProperties().getValue(key, index, defaultVal); }
+            void setMethod(Ogre::String name, py::object obj)
+            { mObj->mPythonEvents[name] = obj; }
 }; 
 
 /*
@@ -273,19 +277,24 @@ namespace Util {
 		    }
 #define NGF_PY_RETURN                                                                          \
                     return py::object
-#define NGF_PY_PASS_DOWN(baseClass)                                                            \
-                    return baseClass::pythonMethod(NGF_name, args)
+#define __NGF_PY_END_PRE                                                                       \
+                 }                                                                             \
+            }                                                                                  \
+                                                                                               \
+            if (mPythonEvents.has_key(NGF_name))                                               \
+            {                                                                                  \
+            return (NGF::Python::PythonManager::getSingleton().getMainNamespace()["callFunc"]) \
+                        (mPythonEvents, NGF_name, mConnector, args);                           \
+            }
 #define NGF_PY_END_IMPL                                                                        \
-		}                                                                              \
-	    }                                                                                  \
+            __NGF_PY_END_PRE                                                                   \
         py::exec(("print \"Specified GameObject does not have a '" + NGF_name + "' method!\"") \
                     .c_str(), NGF::Python::PythonManager::getSingleton().getMainNamespace(),   \
                     NGF::Python::PythonManager::getSingleton().getMainNamespace());            \
 	    return py::object();                                                               \
 	}
 #define NGF_PY_END_IMPL_BASE(baseClass)                                                        \
-		}                                                                              \
-	    }                                                                                  \
+            __NGF_PY_END_PRE                                                                   \
 	    return baseClass::pythonMethod(NGF_name, args);                                    \
 	}
 

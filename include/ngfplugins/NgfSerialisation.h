@@ -314,6 +314,7 @@ class GameObjectRecord
 #define NGF_SERIALISE_STATE_SYSTEM()                                                           \
             std::vector<unsigned int> stateInds;                                               \
             int currState;                                                                     \
+            int nextState;                                                                     \
                                                                                                \
             NGF_SERIALISE_ON_SAVE                                                              \
             {                                                                                  \
@@ -322,6 +323,7 @@ class GameObjectRecord
                     stateInds.push_back((*iter)->getIndex());                                  \
                                                                                                \
                 currState = mCurrState ? mCurrState->getIndex() : 0;                           \
+                nextState = __mNextState ? __mNextState->getIndex() : 0;                       \
             }                                                                                  \
                                                                                                \
             NGF_SERIALISE_STL_CONTAINER(stateInds);                                            \
@@ -335,6 +337,7 @@ class GameObjectRecord
                     __mStateStack.push_back(NGF_STATES_GET_STATE_FROM_INDEX(*iter));           \
                                                                                                \
                 mCurrState = currState ? NGF_STATES_GET_STATE_FROM_INDEX(currState) : 0;       \
+                __mNextState = nextState ? NGF_STATES_GET_STATE_FROM_INDEX(nextState) : 0;     \
             }
 
 #endif //#ifndef __NGF_SERIALISATION_H__

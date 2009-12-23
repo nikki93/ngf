@@ -83,33 +83,34 @@ namespace NGF { namespace Python {
             //Docstring settings.
             py::docstring_options doc_options(true, true, false);
 
-	    //Bind some non-class stuff.		
-	    py::def("createObject", &PythonManager::_createObject, "createObject(type,name,pos,rot,props)");
-	    py::def("destroyObject", &PythonManager::_destroyObject, "destroyObject(obj)");
-	    py::def("_print", &PythonManager::_print, "<internal stuff>");
+            //Bind some non-class stuff.                
+            py::def("createObject", &PythonManager::_createObject, "createObject(type,name,pos,rot,props)");
+            py::def("destroyObject", &PythonManager::_destroyObject, "destroyObject(obj)");
+            py::def("_print", &PythonManager::_print, "<internal stuff>");
 
-	    PythonObjectConnectorPtr (*getObjectStr) (std::string) = &PythonManager::_getObject;
-	    py::def("getObject", getObjectStr, "getObject(name)\n      or\ngetObject(id)");
-	    PythonObjectConnectorPtr (*getObjectID) (int) = &PythonManager::_getObject;
-	    py::def("getObject", getObjectID);
+            PythonObjectConnectorPtr (*getObjectStr) (std::string) = &PythonManager::_getObject;
+            py::def("getObject", getObjectStr, "getObject(name)\n      or\ngetObject(id)");
+            PythonObjectConnectorPtr (*getObjectID) (int) = &PythonManager::_getObject;
+            py::def("getObject", getObjectID);
 
-	    //Bind our NGF connector.
-	    py::class_<PythonObjectConnector, PythonObjectConnectorPtr >("GameObjectConnector", py::no_init)
-		    .def_readwrite("locals", &PythonObjectConnector::mLocals)
-		    .def_readwrite("nonPickle", &PythonObjectConnector::mNonPickle)
-		    .def("method", &PythonObjectConnector::method, "<internal stuff>")
-		    .def("getID", &PythonObjectConnector::getID, "getID()")
-		    .def("getName", &PythonObjectConnector::getName, "getName()")
-		    .def("addFlag", &PythonObjectConnector::addFlag, "addFlag(flag)")
-		    .def("hasFlag", &PythonObjectConnector::hasFlag, "hasFlag(flag)")
-		    .def("removeFlag", &PythonObjectConnector::removeFlag, "removeFlag(flag)")
-		    .def("getFlags", &PythonObjectConnector::getFlags, "getFlags()")
-		    .def("getProperty", &PythonObjectConnector::getProperty, "getProperty(name, index, default)")
-		    ;
+            //Bind our NGF connector.
+            py::class_<PythonObjectConnector, PythonObjectConnectorPtr >("GameObjectConnector", py::no_init)
+                    .def_readwrite("locals", &PythonObjectConnector::mLocals)
+                    .def_readwrite("nonPickle", &PythonObjectConnector::mNonPickle)
+                    .def("method", &PythonObjectConnector::method, "<internal stuff>")
+                    .def("getID", &PythonObjectConnector::getID, "getID()")
+                    .def("getName", &PythonObjectConnector::getName, "getName()")
+                    .def("addFlag", &PythonObjectConnector::addFlag, "addFlag(flag)")
+                    .def("hasFlag", &PythonObjectConnector::hasFlag, "hasFlag(flag)")
+                    .def("removeFlag", &PythonObjectConnector::removeFlag, "removeFlag(flag)")
+                    .def("getFlags", &PythonObjectConnector::getFlags, "getFlags()")
+                    .def("getProperty", &PythonObjectConnector::getProperty, "getProperty(name, index, default)")
+                    .def("setMethod", &PythonObjectConnector::setMethod, "setMethod(methodname, methodcode)")
+                    ;
 
-	    //--- Ogre bindings ----------------------------------------------------
+            //--- Ogre bindings ----------------------------------------------------
 
-	    //Ogre::Radian.
+            //Ogre::Radian.
             py::class_<Ogre::Radian>("Radian", py::init<Ogre::Real>())
                     .def(py::init<Ogre::Degree>())
                     .def("valueDegrees", &Ogre::Radian::valueDegrees)
@@ -142,7 +143,7 @@ namespace NGF { namespace Python {
                     .enable_pickling()
             ;
 
-	    //Ogre::Degree.
+            //Ogre::Degree.
             py::class_<Ogre::Degree>("Degree", py::init<Ogre::Real>())
                     .def(py::init<Ogre::Radian>())
                     .def("valueDegrees", &Ogre::Degree::valueDegrees)
@@ -175,12 +176,12 @@ namespace NGF { namespace Python {
                     .enable_pickling()
             ;
 
-	    //Ogre::Vector3.
+            //Ogre::Vector3.
             py::object vector3Class = py::class_<Ogre::Vector3>("Vector3", py::init<>())
-		    .def(py::init<Ogre::Real,Ogre::Real,Ogre::Real>())
-		    .def_readwrite("x", &Ogre::Vector3::x)
-		    .def_readwrite("y", &Ogre::Vector3::y)
-		    .def_readwrite("z", &Ogre::Vector3::z)
+                    .def(py::init<Ogre::Real,Ogre::Real,Ogre::Real>())
+                    .def_readwrite("x", &Ogre::Vector3::x)
+                    .def_readwrite("y", &Ogre::Vector3::y)
+                    .def_readwrite("z", &Ogre::Vector3::z)
 
                     .def(py::self == py::self)
                     .def(py::self != py::self)
@@ -234,9 +235,9 @@ namespace NGF { namespace Python {
                     .def("positionCloses", &Ogre::Vector3::positionCloses)
                     .def("directionEquals", &Ogre::Vector3::directionEquals)
 
-		    .enable_pickling()
-		    ;
-	    
+                    .enable_pickling()
+                    ;
+            
             vector3Class.attr("ZERO") = Ogre::Vector3::ZERO;
             vector3Class.attr("UNIT_X") = Ogre::Vector3::UNIT_X;
             vector3Class.attr("UNIT_Y") = Ogre::Vector3::UNIT_Y;
@@ -246,17 +247,17 @@ namespace NGF { namespace Python {
             vector3Class.attr("NEGATIVE_UNIT_Z") = Ogre::Vector3::NEGATIVE_UNIT_Z;
             vector3Class.attr("UNIT_SCALE") = Ogre::Vector3::UNIT_SCALE;
 
-	    //Ogre::Quaternion.
+            //Ogre::Quaternion.
             //TODO: Bind overloaded functions.
             py::object quaternionClass = py::class_<Ogre::Quaternion>("Quaternion", py::init<>())
-		    .def(py::init<Ogre::Real,Ogre::Real,Ogre::Real,Ogre::Real>())
-		    .def(py::init<Ogre::Radian&,Ogre::Vector3&>())
+                    .def(py::init<Ogre::Real,Ogre::Real,Ogre::Real,Ogre::Real>())
+                    .def(py::init<Ogre::Radian&,Ogre::Vector3&>())
                     .def(py::init<Ogre::Vector3&, Ogre::Vector3&, Ogre::Vector3&>())
                     .def(py::init<Ogre::Vector3*>())
-		    .def_readwrite("w", &Ogre::Quaternion::w)
-		    .def_readwrite("x", &Ogre::Quaternion::x)
-		    .def_readwrite("y", &Ogre::Quaternion::y)
-		    .def_readwrite("z", &Ogre::Quaternion::z)
+                    .def_readwrite("w", &Ogre::Quaternion::w)
+                    .def_readwrite("x", &Ogre::Quaternion::x)
+                    .def_readwrite("y", &Ogre::Quaternion::y)
+                    .def_readwrite("z", &Ogre::Quaternion::z)
                     .def("swap", &Ogre::Quaternion::swap)
 
                     .def("FromAngleAxis", &Ogre::Quaternion::FromAngleAxis)
@@ -292,8 +293,8 @@ namespace NGF { namespace Python {
                     .def("Squad", &Ogre::Quaternion::Squad)
                     .def("nlerp", &Ogre::Quaternion::nlerp)
 
-		    .enable_pickling()
-		    ;
+                    .enable_pickling()
+                    ;
 
             quaternionClass.attr("ZERO") = Ogre::Quaternion::ZERO;
             quaternionClass.attr("IDENTITY") = Ogre::Quaternion::IDENTITY;
@@ -335,15 +336,15 @@ namespace NGF { namespace Python {
  */
 
     PythonGameObject::PythonGameObject()
-	    : GameObject(Ogre::Vector3(), Ogre::Quaternion(), ID(), PropertyList(), ""),
-	      mConnector(new PythonObjectConnector(this)),
-	      mPythonEvents()
+            : GameObject(Ogre::Vector3(), Ogre::Quaternion(), ID(), PropertyList(), ""),
+              mConnector(new PythonObjectConnector(this)),
+              mPythonEvents()
     {
     }
     //--------------------------------------------------------------------------------------
     PythonGameObject::~PythonGameObject()
     {
-	    mConnector.reset();
+            mConnector.reset();
     }
     //--------------------------------------------------------------------------------------
     void PythonGameObject::_initScript()
@@ -388,15 +389,15 @@ namespace NGF { namespace Python {
     //--------------------------------------------------------------------------------------
     void PythonGameObject::runString(Ogre::String script)
     { 
-	    try
-	    {
-		    py::exec(script.c_str(), PythonManager::getSingleton().getMainNamespace(), PythonManager::getSingleton().getMainNamespace()); 
-	    }
-	    catch (...)
-	    {
-		    std::cerr << "Error loading script:";
-		    PyErr_Print();
-	    }
+            try
+            {
+                    py::exec(script.c_str(), PythonManager::getSingleton().getMainNamespace(), PythonManager::getSingleton().getMainNamespace()); 
+            }
+            catch (...)
+            {
+                    std::cerr << "Error loading script:";
+                    PyErr_Print();
+            }
     }
 
 /*
@@ -408,107 +409,113 @@ namespace NGF { namespace Python {
     //--------------------------------------------------------------------------------------
     PythonManager::PythonManager(PythonManager::PrintFunc printer)
     {
-	    //Do the binds.
-	    initNgf();
+            //Do the binds.
+            initNgf();
 
-	    //Import 'main' and get the main namespace.
-	    mMainModule = py::import("__main__");
-	    mMainNamespace = py::extract<py::dict>(mMainModule.attr("__dict__"));
+            //Import 'main' and get the main namespace.
+            mMainModule = py::import("__main__");
+            mMainNamespace = py::extract<py::dict>(mMainModule.attr("__dict__"));
 
-	    //Set the printer.
-	    mPrinter = printer;
+            //Set the printer.
+            mPrinter = printer;
 
-	    //We give up and write the rest in Python. :P
-	    py::exec(
-		    "import sys\n"
-		    "import Ngf\n\n"
+            //We give up and write the rest in Python. :P
+            py::exec(
+                    "import sys\n"
+                    "import Ngf\n\n"
 
-		    //This code allows us to write 'self.someMethod()' for 'self.method("someMethod", ()),
-		    //while allowing variables of form 'm_*' to be used locally by scripts, and 'p_*' to
-		    //refer to C++ members. Closures FTW!
-		    "def tmp_GameObjectConnector__getattr__(self, name):\n"
-		    " 	if (name[:2] == \"m_\"):\n"
-		    " 		return self.locals[name]\n"
-		    " 	elif (name[:2] == \"v_\"):\n"
-		    " 		return self.nonPickle[name]\n"
-		    " 	elif (name[:2] == \"p_\"):\n"
-		    " 		return self.method(\"get_\" + name [2:], 0)\n"
-		    " 	return lambda *args: self.method(name, args)\n\n"
+                    //This code allows us to write 'self.someMethod()' for 'self.method("someMethod", ()),
+                    //while allowing variables of form 'm_*' to be used locally by scripts, and 'p_*' to
+                    //refer to C++ members. Closures FTW!
+                    "def tmp_GameObjectConnector__getattr__(self, name):\n"
+                    "   if (name[:2] == \"m_\"):\n"
+                    "           return self.locals[name]\n"
+                    "   elif (name[:2] == \"v_\"):\n"
+                    "           return self.nonPickle[name]\n"
+                    "   elif (name[:2] == \"p_\"):\n"
+                    "           return self.method(\"get_\" + name [2:], 0)\n"
+                    "   return lambda *args: self.method(name, args)\n\n"
 
-		    "def tmp_GameObjectConnector__setattr__(self, name, value):\n"
-		    " 	if (name[:2] == \"m_\"):\n"
-		    " 		self.locals[name] = value\n"
-		    " 	if (name[:2] == \"v_\"):\n"
-		    " 		self.nonPickle[name] = value\n"
-		    " 	elif (name[:2] == \"p_\"):\n"
-		    " 		self.method(\"set_\" + name[2:], (value,))\n\n"
+                    "def tmp_GameObjectConnector__setattr__(self, name, value):\n"
+                    "   if (name[:2] == \"m_\"):\n"
+                    "           self.locals[name] = value\n"
+                    "   if (name[:2] == \"v_\"):\n"
+                    "           self.nonPickle[name] = value\n"
+                    "   elif (name[:2] == \"p_\"):\n"
+                    "           self.method(\"set_\" + name[2:], (value,))\n"
+                    "   else:\n"
+                    "           self.setMethod(name, value)\n\n"
 
-		    "Ngf.GameObjectConnector.__getattr__ = tmp_GameObjectConnector__getattr__\n"
-		    "Ngf.GameObjectConnector.__setattr__ = tmp_GameObjectConnector__setattr__\n"
-		    "del tmp_GameObjectConnector__getattr__\n"
-		    "del tmp_GameObjectConnector__setattr__\n\n"
+                    "Ngf.GameObjectConnector.__getattr__ = tmp_GameObjectConnector__getattr__\n"
+                    "Ngf.GameObjectConnector.__setattr__ = tmp_GameObjectConnector__setattr__\n"
+                    "del tmp_GameObjectConnector__getattr__\n"
+                    "del tmp_GameObjectConnector__setattr__\n\n"
 
-		    //We override the output to send it to our own callback instead. The old streams remain 
-		    //in sys.__stdout__, sys.__stderr__.
-		    "class OutputRedirect:\n"
-		    " 	def write(self, str):\n"
-		    " 		Ngf._print(str)\n\n"
+                    //We override the output to send it to our own callback instead. The old streams remain 
+                    //in sys.__stdout__, sys.__stderr__.
+                    "class OutputRedirect:\n"
+                    "   def write(self, str):\n"
+                    "           Ngf._print(str)\n\n"
 
-		    "outputRedirector = OutputRedirect()\n"
-		    "sys.stdout = outputRedirector\n"
-		    "sys.stderr = outputRedirector\n\n"
+                    "outputRedirector = OutputRedirect()\n"
+                    "sys.stdout = outputRedirector\n"
+                    "sys.stderr = outputRedirector\n\n"
 
-		    //For pickling support. The way this is done is really cool. You just pass a tuple
-		    //containing __init__ arguments to construct the new object with!
-		    "def tmp_Vector3__getinitargs__(self):\n"
-		    " 	return (self.x, self.y, self.z)\n"
-		    "Ngf.Vector3.__getinitargs__ = tmp_Vector3__getinitargs__\n"
-		    "del tmp_Vector3__getinitargs__\n\n"
+                    //For pickling support. The way this is done is really cool. You just pass a tuple
+                    //containing __init__ arguments to construct the new object with!
+                    "def tmp_Vector3__getinitargs__(self):\n"
+                    "   return (self.x, self.y, self.z)\n"
+                    "Ngf.Vector3.__getinitargs__ = tmp_Vector3__getinitargs__\n"
+                    "del tmp_Vector3__getinitargs__\n\n"
 
-		    "def tmp_Quaternion__getinitargs__(self):\n"
-		    " 	return (self.w, self.x, self.y, self.z)\n"
-		    "Ngf.Quaternion.__getinitargs__ = tmp_Quaternion__getinitargs__\n"
-		    "del tmp_Quaternion__getinitargs__\n\n"
+                    "def tmp_Quaternion__getinitargs__(self):\n"
+                    "   return (self.w, self.x, self.y, self.z)\n"
+                    "Ngf.Quaternion.__getinitargs__ = tmp_Quaternion__getinitargs__\n"
+                    "del tmp_Quaternion__getinitargs__\n\n"
 
-		    "def tmp_Radian__getinitargs__(self):\n"
-		    " 	return (self.valueRadians())\n"
-		    "Ngf.Radian.__getinitargs__ = tmp_Radian__getinitargs__\n"
-		    "del tmp_Radian__getinitargs__\n\n"
+                    "def tmp_Radian__getinitargs__(self):\n"
+                    "   return (self.valueRadians())\n"
+                    "Ngf.Radian.__getinitargs__ = tmp_Radian__getinitargs__\n"
+                    "del tmp_Radian__getinitargs__\n\n"
 
-		    "def tmp_Degree__getinitargs__(self):\n"
-		    " 	return (self.valueDegrees())\n"
-		    "Ngf.Degree.__getinitargs__ = tmp_Degree__getinitargs__\n"
-		    "del tmp_Degree__getinitargs__\n\n"
+                    "def tmp_Degree__getinitargs__(self):\n"
+                    "   return (self.valueDegrees())\n"
+                    "Ngf.Degree.__getinitargs__ = tmp_Degree__getinitargs__\n"
+                    "del tmp_Degree__getinitargs__\n\n"
 
                     //For easy pickle access from a single function.
-		    "from cPickle import dumps, loads\n\n"
+                    "from cPickle import dumps, loads\n\n"
 
-		    ,mMainNamespace,mMainNamespace
-		    );
+                    //Some general help stuff.
+                    "def callFunc(dict, name, self, args):\n"
+                    "   return dict[name](self, *args)\n\n"           
+
+                    ,mMainNamespace,mMainNamespace
+                    );
     }
     //--------------------------------------------------------------------------------------
     PythonManager& PythonManager::getSingleton(void)
     {
-	    assert(ms_Singleton);
-	    return *ms_Singleton;
+            assert(ms_Singleton);
+            return *ms_Singleton;
     }
     //--------------------------------------------------------------------------------------
     PythonManager* PythonManager::getSingletonPtr(void)
     {
-	    return ms_Singleton;
+            return ms_Singleton;
     }
     //--------------------------------------------------------------------------------------
     PythonObjectConnectorPtr PythonManager::_createObject(std::string type, std::string name, Ogre::Vector3 pos, 
-		    Ogre::Quaternion rot, py::dict pyProps)
+                    Ogre::Quaternion rot, py::dict pyProps)
     {
-	    //Iterate through string-string pairs (tuples) and add properties.
-	    NGF::PropertyList props;
-	    py::stl_input_iterator<py::tuple> iter(pyProps.iteritems()), end;
-	    py::tuple cur;
+            //Iterate through string-string pairs (tuples) and add properties.
+            NGF::PropertyList props;
+            py::stl_input_iterator<py::tuple> iter(pyProps.iteritems()), end;
+            py::tuple cur;
 
-	    for(; iter != end; ++iter)
-	    {
-		    cur = *iter;
+            for(; iter != end; ++iter)
+            {
+                    cur = *iter;
                     Ogre::String name = py::extract<std::string>(cur[0]);
                     Ogre::String vals = py::extract<std::string>(cur[1]);
 
@@ -516,40 +523,40 @@ namespace NGF { namespace Python {
                     if (!strncmp(vals.c_str(), "##", 2))
                         sep = "";
 
-		    props.addProperty(name, vals, sep);
-	    }
+                    props.addProperty(name, vals, sep);
+            }
 
-	    GameObject *obj = GameObjectManager::getSingleton().createObject(type, pos, rot, props, name);
-	    PythonGameObject *PythonObject = dynamic_cast<PythonGameObject*>(obj);
-	    return PythonObject ? (PythonObject->getConnector()) : PythonObjectConnectorPtr();
+            GameObject *obj = GameObjectManager::getSingleton().createObject(type, pos, rot, props, name);
+            PythonGameObject *PythonObject = dynamic_cast<PythonGameObject*>(obj);
+            return PythonObject ? (PythonObject->getConnector()) : PythonObjectConnectorPtr();
     }
     //--------------------------------------------------------------------------------------
     void PythonManager::_destroyObject(PythonObjectConnector *obj)
     {
-	    PythonGameObject *PythonObject = obj->getObject();
-	    GameObjectManager::getSingleton().requestDestroy(PythonObject->getID());
+            PythonGameObject *PythonObject = obj->getObject();
+            GameObjectManager::getSingleton().requestDestroy(PythonObject->getID());
     }
     //--------------------------------------------------------------------------------------
     PythonObjectConnectorPtr PythonManager::_getObject(std::string name)
     {
             //Return NULL shared pointer (None in Python) if failed.
-	    GameObject *obj = GameObjectManager::getSingleton().getByName(name);
-	    if (!obj)
-		    return PythonObjectConnectorPtr();
+            GameObject *obj = GameObjectManager::getSingleton().getByName(name);
+            if (!obj)
+                    return PythonObjectConnectorPtr();
 
-	    PythonGameObject *PythonObject = dynamic_cast<PythonGameObject*>(obj);
-	    return PythonObject ? (PythonObject->getConnector()) : PythonObjectConnectorPtr();
+            PythonGameObject *PythonObject = dynamic_cast<PythonGameObject*>(obj);
+            return PythonObject ? (PythonObject->getConnector()) : PythonObjectConnectorPtr();
     }
     //--------------------------------------------------------------------------------------
     PythonObjectConnectorPtr PythonManager::_getObject(int ID)
     {
             //Return NULL shared pointer (None in Python) if failed.
-	    GameObject *obj = GameObjectManager::getSingleton().getByID(ID);
-	    if (!obj)
-		    return PythonObjectConnectorPtr();
+            GameObject *obj = GameObjectManager::getSingleton().getByID(ID);
+            if (!obj)
+                    return PythonObjectConnectorPtr();
 
-	    PythonGameObject *PythonObject = dynamic_cast<PythonGameObject*>(obj);
-	    return PythonObject ? (PythonObject->getConnector()) : PythonObjectConnectorPtr();
+            PythonGameObject *PythonObject = dynamic_cast<PythonGameObject*>(obj);
+            return PythonObject ? (PythonObject->getConnector()) : PythonObjectConnectorPtr();
     }
 
 /*
