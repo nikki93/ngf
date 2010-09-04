@@ -149,10 +149,12 @@
         (__mStateMap[ind])
 
 //Internal switch method (takes state pointer name).
-#define __NGF_STATES_SWITCH_STATE(ptr)                                                    \
+#define __NGF_STATES_SWITCH_STATE(ptr1)                                                    \
         do                                                                             \
         {                                                                              \
+            __State *ptr = ptr1; \
             ptr->mPrevState = mCurrState;                                              \
+            __mNextState = 0;                                                          \
                                                                                        \
             if (mCurrState)                                                            \
             {                                                                          \
@@ -161,7 +163,14 @@
                 mCurrState->mNextState = 0;                                            \
             }                                                                          \
                                                                                        \
-            mCurrState = ptr;                                                          \
+            if (__mNextState)                                                          \
+            {                                                                          \
+                mCurrState = __mNextState;                                             \
+                __mNextState = 0;                                                      \
+            }                                                                          \
+            else                                                                       \
+                mCurrState = ptr;                                                      \
+                                                                                       \
             mCurrState->enter();                                                       \
             mCurrState->mPrevState = 0;                                                \
         } while (0)
