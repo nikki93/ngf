@@ -23,7 +23,6 @@
 #include "OgreVector3.h"
 #include "OgreQuaternion.h"
 #include "OgreFrameListener.h"
-#include "OgreUserDefinedObject.h"
 #include "OgreStringConverter.h"
 
 #include "boost/any.hpp"
@@ -128,7 +127,7 @@ typedef unsigned int ID;
 //So users don't have to know about boost.
 typedef boost::any MessageReply;
 
-class GameObject : public Ogre::UserDefinedObject
+class GameObject
 {
 	ID mID;
 	Ogre::String mType;
@@ -197,11 +196,6 @@ public:
 
         //Check whether persistent.
         bool isPersistent() { return mPersistent; }
-
-	//------ Ogre UserDefinedObject stuff ------
-        
-	long getTypeID() const { return 1021993; }
-	const Ogre::String& getTypeName(void) const { return mType; }
 };
 
 /*
