@@ -313,7 +313,7 @@ namespace NGF { namespace Python {
 
             quaternionClass.attr("ZERO") = Ogre::Quaternion::ZERO;
             quaternionClass.attr("IDENTITY") = Ogre::Quaternion::IDENTITY;
-            quaternionClass.attr("msfEpsilon") = Ogre::Quaternion::msfEpsilon;
+            quaternionClass.attr("msEpsilon") = Ogre::Quaternion::msEpsilon;
 
             //Ogre::ColourValue
             py::object colourValueClass = py::class_<Ogre::ColourValue>("ColourValue", py::init<>())
