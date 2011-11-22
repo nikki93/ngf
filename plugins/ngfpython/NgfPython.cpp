@@ -20,7 +20,7 @@
 
 #include <boost/python/stl_iterator.hpp>
 
-template<> NGF::Python::PythonManager* Ogre::Singleton<NGF::Python::PythonManager>::ms_Singleton = 0;
+template<> NGF::Python::PythonManager* Ogre::Singleton<NGF::Python::PythonManager>::msSingleton = 0;
 NGF::Python::PythonManager::PrintFunc NGF::Python::PythonManager::mPrinter = 0;
 
 //Some functions used for file-reading.
@@ -313,7 +313,7 @@ namespace NGF { namespace Python {
 
             quaternionClass.attr("ZERO") = Ogre::Quaternion::ZERO;
             quaternionClass.attr("IDENTITY") = Ogre::Quaternion::IDENTITY;
-            quaternionClass.attr("ms_fEpsilon") = Ogre::Quaternion::ms_fEpsilon;
+            quaternionClass.attr("msfEpsilon") = Ogre::Quaternion::msfEpsilon;
 
             //Ogre::ColourValue
             py::object colourValueClass = py::class_<Ogre::ColourValue>("ColourValue", py::init<>())
@@ -511,13 +511,13 @@ namespace NGF { namespace Python {
     //--------------------------------------------------------------------------------------
     PythonManager& PythonManager::getSingleton(void)
     {
-            assert(ms_Singleton);
-            return *ms_Singleton;
+            assert(msSingleton);
+            return *msSingleton;
     }
     //--------------------------------------------------------------------------------------
     PythonManager* PythonManager::getSingletonPtr(void)
     {
-            return ms_Singleton;
+            return msSingleton;
     }
     //--------------------------------------------------------------------------------------
     PythonObjectConnectorPtr PythonManager::_createObject(std::string type, std::string name, Ogre::Vector3 pos, 
